@@ -1,0 +1,17 @@
+{
+  "name": "monSI",
+  "version": "1.0.0",
+  "description": "Monitor Bee Swarm Storage Incentives",
+  "main": "monSI.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ldeffenb",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "abi-decoder": "^2.4.0",
+    "blessed": "^0.1.81",
+    "dotenv": "^16.0.1",
+    "web3": "^1.7.3"
+  }
+}
