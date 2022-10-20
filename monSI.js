@@ -1158,7 +1158,7 @@ async function updateGasPricing()
 	var units = 'gwei'
 	if (price.cmp(oneGwei) < 0)	// Less than 1 gwei, switch to mwei
 		units = 'mwei'
-	const gwei = web3.utils.fromWei(price, units)
+	var gwei = web3.utils.fromWei(price, units)
 	const dot = gwei.indexOf('.')
 	if (dot > 0) {
 		if (dot < 3)
