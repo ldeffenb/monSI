@@ -1,9 +1,10 @@
 // These constants drive the environment to monitor
 const rpcURL = "ws://192.168.10.110:8547"
 
-const redistributionContract = "0xF4963031E8b9f9659CB6ed35E53c031D76480EAD"
-const stakeRegistryContract = "0x18391158435582D5bE5ac1640ab5E2825F68d3a4"
-const gBZZTokenContract = "0x2aC3c1d3e24b45c6C310534Bc2Dd84B5ed576335"
+const redistributionContract = "0xF4963031E8b9f9659CB6ed35E53c031D76480EAD".toLowerCase()
+const stakeRegistryContract = "0x18391158435582D5bE5ac1640ab5E2825F68d3a4".toLowerCase()
+const gBZZTokenContract = "0x2aC3c1d3e24b45c6C310534Bc2Dd84B5ed576335".toLowerCase()
+const postageStampContract = "0x7aAC0f092F7b961145900839Ed6d54b1980F200c".toLowerCase()
 
 const RedistributionABI = [{"inputs":[{"internalType":"address","name":"staking","type":"address"},{"internalType":"address","name":"postageContract","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"_count","type":"uint256"}],"name":"CountCommits","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"_count","type":"uint256"}],"name":"CountReveals","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"l","type":"string"}],"name":"Log","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"l","type":"string"},{"indexed":false,"internalType":"bytes32","name":"b","type":"bytes32"}],"name":"LogBytes32","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Paused","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"previousAdminRole","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"newAdminRole","type":"bytes32"}],"name":"RoleAdminChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"address","name":"sender","type":"address"}],"name":"RoleGranted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"address","name":"sender","type":"address"}],"name":"RoleRevoked","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"hash","type":"bytes32"},{"indexed":false,"internalType":"uint8","name":"depth","type":"uint8"}],"name":"TruthSelected","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Unpaused","type":"event"},{"anonymous":false,"inputs":[{"components":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"stake","type":"uint256"},{"internalType":"uint256","name":"stakeDensity","type":"uint256"},{"internalType":"bytes32","name":"hash","type":"bytes32"},{"internalType":"uint8","name":"depth","type":"uint8"}],"indexed":false,"internalType":"struct Redistribution.Reveal","name":"winner","type":"tuple"}],"name":"WinnerSelected","type":"event"},{"inputs":[],"name":"DEFAULT_ADMIN_ROLE","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PAUSER_ROLE","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PostageContract","outputs":[{"internalType":"contract PostageStamp","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"Stakes","outputs":[{"internalType":"contract StakeRegistry","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_obfuscatedHash","type":"bytes32"},{"internalType":"bytes32","name":"_overlay","type":"bytes32"}],"name":"commit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"currentClaimRound","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentCommitRound","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"currentCommits","outputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"uint256","name":"stake","type":"uint256"},{"internalType":"bytes32","name":"obfuscatedHash","type":"bytes32"},{"internalType":"bool","name":"revealed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentPhaseClaim","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentPhaseCommit","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentPhaseReveal","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentRevealRound","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"currentReveals","outputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"stake","type":"uint256"},{"internalType":"uint256","name":"stakeDensity","type":"uint256"},{"internalType":"bytes32","name":"hash","type":"bytes32"},{"internalType":"uint8","name":"depth","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentRound","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentRoundAnchor","outputs":[{"internalType":"bytes32","name":"returnVal","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentRoundReveals","outputs":[{"components":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"stake","type":"uint256"},{"internalType":"uint256","name":"stakeDensity","type":"uint256"},{"internalType":"bytes32","name":"hash","type":"bytes32"},{"internalType":"uint8","name":"depth","type":"uint8"}],"internalType":"struct Redistribution.Reveal[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentSeed","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"}],"name":"getRoleAdmin","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"grantRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"hasRole","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"A","type":"bytes32"},{"internalType":"bytes32","name":"B","type":"bytes32"},{"internalType":"uint8","name":"minimum","type":"uint8"}],"name":"inProximity","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint8","name":"depth","type":"uint8"}],"name":"isParticipatingInUpcomingRound","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_overlay","type":"bytes32"}],"name":"isWinner","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"minimumStake","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextSeed","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"renounceRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_overlay","type":"bytes32"},{"internalType":"uint8","name":"_depth","type":"uint8"},{"internalType":"bytes32","name":"_hash","type":"bytes32"},{"internalType":"bytes32","name":"_revealNonce","type":"bytes32"}],"name":"reveal","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"revokeRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"roundLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"winner","outputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"stake","type":"uint256"},{"internalType":"uint256","name":"stakeDensity","type":"uint256"},{"internalType":"bytes32","name":"hash","type":"bytes32"},{"internalType":"uint8","name":"depth","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_overlay","type":"bytes32"},{"internalType":"uint8","name":"_depth","type":"uint8"},{"internalType":"bytes32","name":"_hash","type":"bytes32"},{"internalType":"bytes32","name":"revealNonce","type":"bytes32"}],"name":"wrapCommit","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"pure","type":"function"}]
 const StakeRegistryABI = [{"inputs":[{"internalType":"address","name":"_bzzToken","type":"address"},{"internalType":"uint64","name":"_NetworkId","type":"uint64"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Paused","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"previousAdminRole","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"newAdminRole","type":"bytes32"}],"name":"RoleAdminChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"address","name":"sender","type":"address"}],"name":"RoleGranted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"address","name":"sender","type":"address"}],"name":"RoleRevoked","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"slashed","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"time","type":"uint256"}],"name":"StakeFrozen","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"slashed","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"StakeSlashed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"overlay","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"stakeAmount","type":"uint256"},{"indexed":false,"internalType":"address","name":"owner","type":"address"},{"indexed":false,"internalType":"uint256","name":"lastUpdatedBlock","type":"uint256"}],"name":"StakeUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Unpaused","type":"event"},{"inputs":[],"name":"DEFAULT_ADMIN_ROLE","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PAUSER_ROLE","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REDISTRIBUTOR_ROLE","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bzzToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_owner","type":"address"},{"internalType":"bytes32","name":"nonce","type":"bytes32"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"depositStake","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"time","type":"uint256"}],"name":"freezeDeposit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"}],"name":"getRoleAdmin","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"grantRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"hasRole","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"}],"name":"lastUpdatedBlockNumberOfOverlay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"}],"name":"ownerOfOverlay","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"pause","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"pot","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"renounceRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"revokeRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"slashDeposit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"}],"name":"stakeOfOverlay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"stakes","outputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"stakeAmount","type":"uint256"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"uint256","name":"lastUpdatedBlockNumber","type":"uint256"},{"internalType":"bool","name":"isValue","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"unPause","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"}],"name":"usableStakeOfOverlay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawFromStake","outputs":[],"stateMutability":"nonpayable","type":"function"}]
@@ -108,6 +109,77 @@ function shortNum(n,plus)
 	return result
 }
 
+function wholeBZZ(bzz)
+{
+	while (bzz.length <= 16) {
+		bzz = '0' + bzz
+	}
+	bzz = bzz.slice(0,bzz.length-16)+"."+bzz.slice(bzz.length-16)
+	while (bzz.slice(-1) == '0') {
+		bzz = bzz.slice(0,-1)
+	}
+	if (bzz.slice(-1) == '.') bzz = bzz + '0'
+	return bzz
+}
+
+function shortBZZ(n,plus)	// BZZ token has 16 decimal places, javascript MAX_SAFE_INTEGER = 900719925474099 - strange that ths works!
+{
+	const oneBZZ = 10000000000000000
+	
+	if (typeof(n) != "number") return typeof(n)+'('+n+')'
+	
+	var negative, result
+	if (n < 0)
+	{	negative = true
+		n = -n
+	}
+	
+	if (n < oneBZZ/100) return shortNum(n,plus)
+		
+	else if (n >= 100*oneBZZ)
+		result = (n/(oneBZZ)).toFixed(0)+'bzz'
+	else if (n >= 10*oneBZZ)
+		result = (n/(oneBZZ)).toFixed(1)+'bzz'
+	else if (n >= 1*oneBZZ)
+		result = (n/(oneBZZ)).toFixed(2)+'bzz'
+	else
+		result = (n/(oneBZZ)).toFixed(3)+'bzz'
+	
+	if (negative) result = "-"+result
+	else if (plus) result = "+"+result
+	return result
+}
+
+function shortETH(n,plus)	// ETH has 18 decimal places, javascript MAX_SAFE_INTEGER = 900719925474099 - strange that this works!
+{
+	const oneETH = 1000000000000000000
+	
+	if (typeof(n) != "number") return typeof(n)+'('+n+')'
+	
+	var negative, result
+	if (n < 0)
+	{	negative = true
+		n = -n
+	}
+	
+	if (n < oneETH/100) return shortNum(n,plus)
+		
+	else if (n >= 100*oneETH)
+		result = (n/(oneETH)).toFixed(0)+'bzz'
+	else if (n >= 10*oneETH)
+		result = (n/(oneETH)).toFixed(1)+'bzz'
+	else if (n >= 1*oneETH)
+		result = (n/(oneETH)).toFixed(2)+'bzz'
+	else
+		result = (n/(oneETH)).toFixed(3)+'bzz'
+	
+	if (negative) result = "-"+result
+	else if (plus) result = "+"+result
+	return result
+}
+
+
+
 var screen = blessed.screen({
   smartCSR: true,
   dockBorders : true,
@@ -184,7 +256,7 @@ box.key(['c'], function (ch, key) {
 	return box
 }
 
-var playersBox, roundsBox, winnersBox, outputBox
+var playersBox, roundsBox, winnersBox, outputBox, blocksBox
 
 function addBoxes()
 {
@@ -283,6 +355,28 @@ function addBoxes()
 
 	screen.append(playersBox);
 
+	blocksBox = blessed.box({
+	  top: '75%',
+	  left: '60%',
+	  width: '15%',
+	  height: '100%',
+	  content: 'hh:mm:ss bbbbbbb nns mmmms',
+	  scrollable: true,
+	  tags: true,
+	  style: {
+		fg: 'white',
+		bg: 'black',	// Was magenta
+		border: {
+		  fg: '#f0f0f0'
+		},
+		hover: {
+		  bg: 'green'
+		}
+	  }
+	});
+
+	screen.append(blocksBox);
+
 	outputBox = blessed.box({
 	  //top: Math.trunc((boxCount+numWidth-1)/numWidth)*(numLines+1)+1,
 	  //left: 0,
@@ -290,7 +384,7 @@ function addBoxes()
 	  //height: '100%',
 	  top: '75%',
 	  left: 0,
-	  width: '75%',
+	  width: blocksBox?'60%':'75%',
 	  height: '100%',
 	  content: '{left}error and trace\noutput will appear here\nand scroll down{/left}',
 	  scrollable: true,
@@ -310,43 +404,6 @@ function addBoxes()
 	screen.append(outputBox);
 }
 
-
-var winnersBoxStatus = "" //"{yellow-fg}starting{/yellow-fg}"
-var winnersBoxChecks = 0
-var winnersBoxGasPrice = ""
-
-function refreshWinnersTitle()
-{
-	var checks = ""
-	if (winnersBoxChecks > 0) checks = " c:"+winnersBoxChecks
-	winnersBox.setLine(0, '{center}{bold}'+currentLocalTime()+'{/bold}'+winnersBoxStatus+checks+winnersBoxGasPrice+'{/center}')
-	screen.render()
-}
-
-function setWinnersStatus(status)
-{
-		winnersBoxStatus = status
-		refreshWinnersTitle()
-}
-
-function setWinnersChecks(checks)
-{
-		winnersBoxChecks = checks
-		refreshWinnersTitle()
-}
-
-function setWinnersGasPrice(gasPrice)
-{
-		winnersBoxGasPrice = ' @ '+gasPrice
-		refreshWinnersTitle()
-}
-
-function showWinners(text)
-{
-	var line = currentLocalTime()+' '+text
-	winnersBox.insertLine(1, line);
-	screen.render()
-}
 
 function setWinnersLineTime(index,when,text)	// Caller is expected to trigger the render
 {
@@ -369,14 +426,16 @@ function addWinnersLine(index,text)
 }
 
 
-var debugging = false
+const debugging = false
 var lastErrorTag = ""
 
-function showError(text, tag)
+function showError(text, tag, time)
 {
+	if (!time) time = new Date()
+
 	if (typeof(text) != 'string')
 		text = JSON.stringify(text, undefined, 2)
-	var line = currentLocalTime()+' '+text
+	var line = specificLocalTime(time)+' '+text
 	if (debugging) console.error(line)
 	if (!isUndefined(tag) && tag == lastErrorTag)
 	{	
@@ -390,33 +449,44 @@ function showError(text, tag)
 	screen.render()
 }
 
+const logEnabled = false
+function showLog(text)
+{
+	if (typeof(text) != 'string')
+		text = JSON.stringify(text, undefined, 2)
+	if (logEnabled) console.error(currentLocalTime()+' '+text)
+}
+
 function showLogError(text)
 {
-	if (!debugging) console.error(currentLocalTime()+' '+text)
+	if (typeof(text) != 'string')
+		text = JSON.stringify(text, undefined, 2)
+	if (!debugging) showLog(text)
 	showError(text)
 }
 
-function colorValue(value, forcePlus)
+function colorValue(value, forcePlus, fmtRtn)
 {
+	if (!fmtRtn) fmtRtn = shortNum
 	if (value < 0)
-	{	return '{red-fg}'+shortNum(value)+'{/red-fg}'
+	{	return '{red-fg}'+fmtRtn(value)+'{/red-fg}'
 	} else if (value > 0)
 	{	if (isUndefined(forcePlus))
-		{	return '{green-fg}'+shortNum(value)+'{/green-fg}'
+		{	return '{green-fg}'+fmtRtn(value)+'{/green-fg}'
 		}
-		return '{green-fg}+'+shortNum(value)+'{/green-fg}'
+		return '{green-fg}+'+fmtRtn(value)+'{/green-fg}'
 	}
 	if (isUndefined(forcePlus))
-		return '{white-fg}'+shortNum(value)+'{/white-fg}'
-	else return '{white-fg}+'+shortNum(value)+'{/white-fg}'
+		return '{white-fg}'+fmtRtn(value)+'{/white-fg}'
+	else return '{white-fg}+'+fmtRtn(value)+'{/white-fg}'
 }
 
-function colorSpecificDelta(previousValue, value, forcePlus)
+function colorSpecificDelta(previousValue, value, forcePlus, fmtRtn)
 {
 	var delta = value - previousValue
 	if (delta != 0)
 	{
-		return ' ('+colorValue(delta, forcePlus)+')'
+		return ' ('+colorValue(delta, forcePlus, fmtRtn)+')'
 	}
 	return ''
 }
@@ -434,7 +504,7 @@ function valueChanged(name, value)
 	return lastValues[name] != value;
 }
 
-function colorDelta(name, value, forcePlus)
+function colorDelta(name, value, forcePlus, fmtRtn)
 {
 	if (isUndefined(lastValues[name]))
 	{	lastValues[name] = value
@@ -445,7 +515,7 @@ function colorDelta(name, value, forcePlus)
 	lastValues[name] = value;
 	if (delta != 0)
 	{
-		return ' ('+colorValue(delta, forcePlus)+')'
+		return ' ('+colorValue(delta, forcePlus, fmtRtn)+')'
 	}
 	return ''
 }
@@ -461,10 +531,29 @@ var monitorAddresses = []
 monitorAddresses.push(redistributionContract.toLowerCase())
 monitorAddresses.push(stakeRegistryContract.toLowerCase())
 monitorAddresses.push(gBZZTokenContract.toLowerCase())
+//monitorAddresses.push(postageStampContract.toLowerCase())	// I don't think I want to monitor this one, but I want it named
 
 const monitorAddresses1 = ["0x62b32288d5292708de7443f78f6714c95e4c75ff","0x830e313ccab2140f72cbfe2dc44bbe0014cd245b","0xc9f8b6297dc6a55846014d326c59c04627380e87","0xa5e44b91b4790fa21765a204024281e75569f224"]
 monitorAddresses1.forEach(add => monitorAddresses.push(add.toLowerCase()))
 
+function formatAccount(account,n)
+{
+	account = account.toLowerCase()
+	if (account == redistributionContract)
+		return 'Redistribution'
+	if (account == stakeRegistryContract)
+		return 'StakeRegistry'
+	if (account == gBZZTokenContract)
+		return 'gBZZToken'
+	if (account == postageStampContract)
+		return 'PostageStamp'
+	var result = leftID(account,n)
+	var overlay = getAccountOverlay(account)
+	if (overlay && highlightOverlays.includes(overlay.toLowerCase())) {
+		result = '{yellow-fg}'+result+'{/yellow-fg}'
+	}
+	return result
+}
 
 
 var highlightOverlays = []
@@ -480,10 +569,12 @@ function formatOverlay(overlay,n)
 }
 
 
+
 var Winners = []
 
-function refreshWinners()
+function refreshWinners(winner)
 {
+	if (winner) winner.text = formatWinner(winner)
 	Winners.sort(function(l,r){
 		if (l.overlay == r.overlay) return 0
 		if (l.overlay < r.overlay) return -1
@@ -494,68 +585,81 @@ function refreshWinners()
 		Winners[i].line = i
 		setWinnersLineTime(Winners[i].line, Winners[i].when, Winners[i].text)
 	}
-
 	screen.render()
 }
 
-function formatWinner(i)
+function formatWinner(winner)
 {
-	winner = Winners[i]
-	var result = formatOverlay(winner.overlay,12)+' '+colorValue(winner.amount)+colorDelta(winner.overlay+':amount', winner.amount, true)
-	if (winner.frozen) result = result + " {blue-fg}FROZEN{/blue-fg}"
+	var result = formatOverlay(winner.overlay,12)
+	if (!isUndefined(winner.winCount) && !isUndefined(winner.playCount)) result = result + ` ${winner.winCount}/${winner.playCount}`
+	if (winner.freezeCount && winner.freezeCount > 0) result = result + ` {blue-fg}${winner.freezeCount}{/blue-fg}`
+	if (winner.slashCount && winner.slashCount > 0) result = result + ` {red-fg}${winner.slashCount}{/red-fg}`
+	if (winner.amount != 0) result = result + " " + colorValue(winner.amount, false, shortBZZ)+colorDelta(winner.overlay+':amount', winner.amount, true, shortBZZ)
+	if (winner.frozen) {
+		if (winner.freezeTarget) result = result + ` {blue-fg}~${winner.freezeTarget}{/blue-fg}`
+		else result = result + " {blue-fg}FROZEN{/blue-fg}"
+	}
 	return result
 }
 
-function addWinner(overlay, account, amount)
+function getWinner(blockTime, overlay, account)
 {
-	if (!overlay) return
+	if (!overlay) return undefined
 	
-	if (typeof(amount) == 'string') amount = Number(amount)
-	
-	Winners[Winners.length] = {when: new Date(), overlay: overlay, account: account, amount: amount}
-	//setCashBoxChecks(Winners.length)
-
-	Winners[Winners.length-1].text = formatWinner(Winners.length-1)
-	addWinnersLine(Winners.length-1, Winners[Winners.length-1].text)
-	
-	refreshWinners()
-}
-
-function updateWinner(overlay, account, amount)
-{
-	if (typeof(amount) == 'string') amount = Number(amount)
-
 	for (var i=0; i<Winners.length; i++)
 	{
 		if (Winners[i].overlay == overlay
 		&& Winners[i].account == account) {
-			Winners[i].when = new Date()
-			Winners[i].amount += amount
+			Winners[i].when = blockTime
 			Winners[i].frozen = undefined
-			Winners[i].text = formatWinner(i)
-			refreshWinners()
-			return
+			return Winners[i]
 		}
 	}
-	addWinner(overlay, account, amount)
+
+	const winner = {when: blockTime, overlay: overlay, account: account, amount: 0}
+	Winners[Winners.length] = winner
+
+	winner.text = formatWinner(Winners[Winners.length-1])
+	addWinnersLine(Winners.length-1, Winners[Winners.length-1].text)
+	
+	return Winners[Winners.length-1]
 }
 
-function freezeWinner(overlay, account, time)
+function updateWinner(blockTime, overlay, account, amount)
+{
+	if (typeof(amount) == 'string') amount = Number(amount)
+
+	const winner = getWinner(blockTime, overlay, account)
+	if (!winner) return
+	winner.amount += amount
+	if (amount < 0) {
+		if (!winner.slashCount) winner.slashCount = 1
+		else winner.slashCount++
+	}
+	else if (amount == 0) {
+		if (!winner.playCount) winner.playCount = 1
+		else winner.playCount++
+		if (!winner.winCount) winner.winCount = 0
+	}
+	else if (amount > 0) {
+		if (!winner.playCount) winner.playCount = 1
+		if (!winner.winCount) winner.winCount = 1
+		else winner.winCount++
+	}
+	refreshWinners(winner)
+}
+
+function freezeWinner(blockTime, overlay, account, blockNumber, time)
 {
 	if (typeof(time) == 'string') time = Number(time)
 
-	for (var i=0; i<Winners.length; i++)
-	{
-		if (Winners[i].overlay == overlay
-		&& Winners[i].account == account) {
-			Winners[i].when = new Date()
-			Winners[i].frozen = true
-			Winners[i].text = formatWinner(i)
-			refreshWinners()
-			return
-		}
-	}
-	addWinner(overlay, account, amount)
+	const winner = getWinner(blockTime, overlay, account)
+	if (!winner) return
+	winner.frozen = true
+	winner.freezeTarget = blockNumber + time + blocksPerRound
+	if (!winner.freezeCount) winner.freezeCount = 1
+	else winner.freezeCount++
+	refreshWinners(winner)
 }
 
 function getAccountOverlay(account)
@@ -608,13 +712,13 @@ function roundString(blockNumber)
 	return `${roundFromBlock(blockNumber)}(${blockNumber%blocksPerRound})`
 }
 
-function addRound(blockNumber, commits, reveals, slashes, hashes, freezes, truth, depth, reward, winner)
+function addRound(blockNumber, blockTime, commits, reveals, slashes, hashes, freezes, truth, depth, reward, winner)
 {
 	if (typeof(reward) == 'string') reward = Number(reward)
-	const round = { when: new Date(), id: roundFromBlock(blockNumber), residual: blockNumber%blocksPerRound, commits: commits, reveals: reveals, slashes: slashes, hashes: hashes, freezes: freezes, truth: truth, depth: depth, reward: reward, winner: winner }
+	const round = { when: blockTime, id: roundFromBlock(blockNumber), residual: blockNumber%blocksPerRound, commits: commits, reveals: reveals, slashes: slashes, hashes: hashes, freezes: freezes, truth: truth, depth: depth, reward: reward, winner: winner }
 	//showError(`${formatRound(round)}`)
 	
-	var line = currentLocalTime()+' '+formatRound(round)
+	var line = specificLocalTime(round.when)+' '+formatRound(round)
 	roundsBox.insertLine(0, line);
 	screen.render()
 }
@@ -661,11 +765,11 @@ async function updatePlayer(p)
 	var text = `${roundString(player.blockNumber)} ${formatOverlay(player.overlay,12)} ${player.phase}`
 	if (player.depth) text = text + ` ^${player.depth}`
 	if (player.hash) text = text + ` ${shortID(player.hash,10)}`
-	const line = specificLocalTime(new Date())+' '+text
+	const line = specificLocalTime(player.when)+' '+text
 	playersBox.setLine(p, line);
 }
 
-async function addPlayer(blockNumber, overlay, phase, depth, hash)
+async function addPlayer(blockTime, blockNumber, overlay, account, phase, depth, hash)
 {
 	const round = roundFromBlock(blockNumber)
 	if (round != PlayersRound)
@@ -674,7 +778,7 @@ async function addPlayer(blockNumber, overlay, phase, depth, hash)
 	
 	//showError(`${roundString(blockNumber)} Player ${leftID(overlay,16)} ${phase} ${depth} ${shortID(hash,16)}`, overlay)
 
-	const player = {overlay: overlay, blockNumber: blockNumber, phase: phase, depth: depth, hash: hash}
+	const player = {when: blockTime, overlay: overlay, blockNumber: blockNumber, phase: phase, depth: depth, hash: hash}
 	for (var p=0; p<Players.length; p++)
 	{
 		if (Players[p].overlay == overlay) {
@@ -685,39 +789,38 @@ async function addPlayer(blockNumber, overlay, phase, depth, hash)
 	}
 	Players[Players.length] = player
 	updatePlayer(Players.length-1)
-	
+	updateWinner(blockTime, overlay, account, 0.0)	// new players in the round count as playing
 	return true
 }
 
 let Overlays = []
 let Accounts = []
 
-async function associateOverlay(overlay, account)
+async function associateOverlay(blockTime, overlay, account)
 {
 	if (isUndefined(Overlays[account])) {
 		Overlays[account] = overlay
 		Accounts[overlay] = account
-		updateWinner(overlay, account, 0.0)
 		//showError(`New Account ${account} overlay ${leftID(overlay,18)}`)
 	}
 }
 
 
 
-async function handleCommit(transaction, receipt, input)
+async function handleCommit(blockTime, transaction, receipt, input)
 {
 	if (input.params.length == 2
 	&& input.params[0].name == '_obfuscatedHash'
 	&& input.params[1].name == '_overlay'
 	&& input.params[0].type == 'bytes32'
 	&& input.params[1].type == 'bytes32') {
-		associateOverlay(input.params[1].value, transaction.from)
-		return addPlayer(receipt.blockNumber, input.params[1].value, "commit", undefined, undefined)
+		associateOverlay(blockTime, input.params[1].value, transaction.from)
+		return addPlayer(blockTime, receipt.blockNumber, input.params[1].value, transaction.from, "commit", undefined, undefined)
 	}
 	return false
 }
 
-async function handleReveal(transaction, receipt, input)
+async function handleReveal(blockTime, transaction, receipt, input)
 {
 	if (input.params.length == 4
 	&& input.params[0].name == '_overlay'
@@ -728,14 +831,14 @@ async function handleReveal(transaction, receipt, input)
 	&& input.params[1].type == 'uint8'
 	&& input.params[2].type == 'bytes32'
 	&& input.params[3].type == 'bytes32') {
-		associateOverlay(input.params[0].value, transaction.from)
+		associateOverlay(blockTime, input.params[0].value, transaction.from)
 		addHash(receipt.blockNumber, input.params[2].value, input.params[1].value)
-		return addPlayer(receipt.blockNumber, input.params[0].value, "reveal", input.params[1].value, input.params[2].value)
+		return addPlayer(blockTime, receipt.blockNumber, input.params[0].value, transaction.from, "reveal", input.params[1].value, input.params[2].value)
 	}
 	return false
 }
 
-async function handleClaim(transaction, receipt, input)
+async function handleClaim(blockTime, transaction, receipt, input)
 {
 	if (input.params.length == 0) {
 		  if (receipt) {
@@ -782,7 +885,7 @@ async function handleClaim(transaction, receipt, input)
 							const time = log.events[1].value
 							const account = Accounts[overlay]
 							if (!isUndefined(account))
-								freezeWinner(overlay, account, time)
+								freezeWinner(blockTime, overlay, account, receipt.blockNumber, time)
 							freezes++
 						}
 					} else if (log.name == 'StakeSlashed') {
@@ -792,11 +895,11 @@ async function handleClaim(transaction, receipt, input)
 						&& log.events[0].type == 'bytes32'
 						&& log.events[1].type == 'uint256') {
 							const overlay = log.events[0].value;
-							const amount = log.events[1].value
+							var amount = log.events[1].value
 							const account = Accounts[overlay]
 							if (!isUndefined(account)) {
 								if (typeof(amount) == 'string') amount = Number(amount)
-								updateWinner(overlay, account, -amount)
+								updateWinner(blockTime, overlay, account, -amount)
 							}
 							slashes++
 						}
@@ -818,15 +921,15 @@ async function handleClaim(transaction, receipt, input)
 					//});
 				});
 				if (value && reveals && commits && depth && truth) {
-					addRound(receipt.blockNumber, commits, reveals, slashes, Hashes, freezes, truth, depth, value, getAccountOverlay(transaction.from))
+					addRound(receipt.blockNumber, blockTime, commits, reveals, slashes, Hashes, freezes, truth, depth, value, getAccountOverlay(transaction.from))
 					clearHashes()
 				}
 
 				if (value) {
-					updateWinner(getAccountOverlay(transaction.from), transaction.from, value)
+					updateWinner(blockTime, getAccountOverlay(transaction.from), transaction.from, value)
 				}
 				if (truth && depth) {
-					return addPlayer(receipt.blockNumber, getAccountOverlay(transaction.from), "{green-fg}claim{/green-fg}", depth, truth)
+					return addPlayer(blockTime, receipt.blockNumber, getAccountOverlay(transaction.from), transaction.from, "{green-fg}claim{/green-fg}", depth, truth)
 				}
 			}
 		  }
@@ -835,17 +938,12 @@ async function handleClaim(transaction, receipt, input)
 }
 
 
-async function updateBlockTransactions(blockNumber)
+async function updateBlockTransactions(blockNumber, blockTime)
 {
   var block = await web3.eth.getBlock(blockNumber)
   if (block.transactions && block.transactions.length > 0) {
     block.transactions.forEach(async tx => {
       var transaction = await web3.eth.getTransaction(tx)
-	  var receipt = await web3.eth.getTransactionReceipt(tx)
-	  if (!receipt || !receipt.status) {
-		  //showError(`Transaction ${tx} FAILED!`)
-		  return
-	  }
 	  
 	  var handled = true	// Presume handled to keep it quiet
 	  
@@ -857,11 +955,17 @@ async function updateBlockTransactions(blockNumber)
 		if (transaction.to.toLowerCase() == redistributionContract.toLowerCase()) {
 		  const input = abiDecoder.decodeMethod(transaction.input)
 		  if (input.name == 'commit') {
-			  handled = await handleCommit(transaction, receipt, input)
+			  var receipt = await web3.eth.getTransactionReceipt(tx)
+			  if (!receipt || !receipt.status) return
+			  handled = await handleCommit(blockTime, transaction, receipt, input)
 		  } else if (input.name == 'reveal') {
-			  handled = await handleReveal(transaction, receipt, input)
+			  var receipt = await web3.eth.getTransactionReceipt(tx)
+			  if (!receipt || !receipt.status) return
+			  handled = await handleReveal(blockTime, transaction, receipt, input)
 		  } else if (input.name == 'claim') {
-  			  handled = await handleClaim(transaction, receipt, input)
+			  var receipt = await web3.eth.getTransactionReceipt(tx)
+			  if (!receipt || !receipt.status) return
+  			  handled = await handleClaim(blockTime, transaction, receipt, input)
 		  }
 		} else if (transaction.to.toLowerCase() == stakeRegistryContract.toLowerCase()) {
 		  const input = abiDecoder.decodeMethod(transaction.input)
@@ -870,40 +974,106 @@ async function updateBlockTransactions(blockNumber)
 		  const input = abiDecoder.decodeMethod(transaction.input)
 		  handled = false
 		} else if (monitorAddresses.includes(transaction.to.toLowerCase())) {
-			handled = false
+		  handled = false
 		}
 	  }
 	  
 	  if (!handled) {
-        showError('******** RECEIVED TRANSACTION ********');
-          showError(transaction)
-		  if (receipt) showError(receipt)
-		  const input = abiDecoder.decodeMethod(transaction.input)
-		  if (input) showError(input)
+		var receipt = await web3.eth.getTransactionReceipt(tx)
+		if (!receipt || !receipt.status) return
+		const input = abiDecoder.decodeMethod(transaction.input)
+		if (!input || !input.name)
+			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccount(transaction.from,12)} -> ${formatAccount(transaction.to,12)} ${shortETH(Number(transaction.value))}`, undefined, blockTime)
+		else {
+			if (transaction.to.toLowerCase() == stakeRegistryContract.toLowerCase()
+			&& input.name == "depositStake"
+			&& input.params.length == 3
+			&& input.params[0].name == '_owner'
+			&& input.params[1].name == 'nonce'
+			&& input.params[2].name == 'amount'
+			&& input.params[0].type == 'address'
+			&& input.params[1].type == 'bytes32'
+			&& input.params[2].type == 'uint256') {
+			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccount(transaction.from,12)} ${input.name}(${formatOverlay(input.params[0].value,12)},${wholeBZZ(input.params[2].value)})`, undefined, blockTime)
+			}
+			else if (transaction.to.toLowerCase() == gBZZTokenContract.toLowerCase()
+			&& input.name == "approve"
+			&& input.params.length == 2
+			&& input.params[0].name == 'spender'
+			&& input.params[1].name == 'amount'
+			&& input.params[0].type == 'address'
+			&& input.params[1].type == 'uint256') {
+			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccount(transaction.from,12)} ${input.name}(${formatAccount(input.params[0].value,12)},${wholeBZZ(input.params[1].value)})`, undefined, blockTime)
+			}
+			else if (transaction.to.toLowerCase() == gBZZTokenContract.toLowerCase()
+			&& input.name == "transfer"
+			&& input.params.length == 2
+			&& input.params[0].name == 'recipient'
+			&& input.params[1].name == 'amount'
+			&& input.params[0].type == 'address'
+			&& input.params[1].type == 'uint256') {
+			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccount(transaction.from,12)} ${input.name}(${formatAccount(input.params[0].value,12)},${wholeBZZ(input.params[1].value)})`, undefined, blockTime)
+			}
+			else {
+			var args = ''
+			input.params.forEach(param => {
+				if (args != '') args = args + ','
+				if (param.type == 'address')
+					args = args + `${param.name}: ${formatAccount(param.value)}`
+				else args = args + `${param.name}: ${param.value}`
+			});
+			if (args.length > 32) args = '***'
+			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccount(transaction.from,12)} -> ${formatAccount(transaction.to,12)} ${input.name}(${args})`, undefined, blockTime)
+			}
+		}
+		if (false) {
+		  showLog('******** RECEIVED TRANSACTION ********');
+          showLog(transaction)
+		  if (receipt) showLog(receipt)
+		  if (input) showLog(input)
 		  if (receipt) {
 			const logs = abiDecoder.decodeLogs(receipt.logs)
 			if (logs) {
 				logs.forEach(log => {
-					showError(log)
+					showLog(log)
 					//log.events.forEach(event => {
 					//	console.log(event)
 					//});
 				});
 			}
 		  }
-        showError('*********** END TRANSACTION ***********');
+          showLog('*********** END TRANSACTION ***********');
+		}
 	  }
     });
   }
 }
 
+var lastBlockTime = 0
+
 async function updateBlockHeader(blockHeader)
 {
-	const dt = new Date(blockHeader.timestamp*1000).toISOString()
-	const text = `${roundString(blockHeader.number)} Block: ${blockHeader.number} Gas: ${blockHeader.gasUsed}/${blockHeader.gasLimit} Time: ${blockHeader.timestamp} or ${dt}`;
-	playersBox.label = "Players - "+text
+	const blockTime = new Date(blockHeader.timestamp*1000)
+	const dt = blockTime.toISOString()
+	var gas = ''
+	if (blockHeader.gasLimit > 0) {
+		gas = ` ${Math.floor(blockHeader.gasUsed*1000/blockHeader.gasLimit)/10.0}%`
+	}
+	var text = `${roundString(blockHeader.number)} Block: ${blockHeader.number} Gas: ${blockHeader.gasUsed}/${blockHeader.gasLimit}${gas} Time: ${dt}`;
+	var deltaBlockTime = ''
+	if (lastBlockTime) {
+		deltaBlockTime = ` +${blockHeader.timestamp-lastBlockTime}s`
+		text = text + deltaBlockTime
+	}
+	if (blocksBox) blocksBox.insertLine(0,`${specificLocalTime(blockTime)} ${blockHeader.number}${gas}${deltaBlockTime}`)
+	lastBlockTime = blockHeader.timestamp
 	showError(text, "block");
-	await updateBlockTransactions(blockHeader.number)
+	const start = Date.now()
+	await updateBlockTransactions(blockHeader.number, blockTime)
+	const elapsed = Date.now() - start
+	text = text + ` ${elapsed}ms`
+	if (blocksBox) blocksBox.setLine(0,`${specificLocalTime(blockTime)} ${blockHeader.number}${gas}${deltaBlockTime} ${elapsed}ms`)
+	showError(text, "block");
 }
 
 const Web3 = require('web3');
@@ -990,9 +1160,19 @@ abiDecoder.addABI(StakeRegistryABI)
 abiDecoder.addABI(gBZZTokenABI)
 
 	var currentBlockNumber = await web3.eth.getBlockNumber()
-	var startingBlockNumber = Math.floor(currentBlockNumber/blocksPerRound)*blocksPerRound;
-	startingBlockNumber -= blocksPerRound * preloadRounds
+	var startingBlockNumber = currentBlockNumber	// Default to just start in the present moment
+	startingBlockNumber -= blocksPerRound * preloadRounds	// But back off a few rounds if specified
+	//startingBlockNumber = 7745129	// Redistribution contract deployment block
+	//startingBlockNumber = 7753068	// First Commit transaction on Redistribution contract
+	//startingBlockNumber = 51029*blocksPerRound		// First round to credit the winner
+	//startingBlockNumber = 51232*blocksPerRound		// First round to have a slash
+	//startingBlockNumber = Math.min(7786054, 7787724, 7786660, 7787122) // My nodes' first rounds
+
+	//startingBlockNumber = 51323*blocksPerRound	// Recent slash followed by freeze
+	//startingBlockNumber = 51333*blocksPerRound	// Frozen testing
 	
+	startingBlockNumber = Math.floor(startingBlockNumber/blocksPerRound)*blocksPerRound		// Start at the first block of the round
+
 	do
 	{
 		currentBlockNumber = await web3.eth.getBlockNumber()
@@ -1013,15 +1193,15 @@ web3.eth.subscribe('logs', options, function(error, result){
   if (error) console.error(error);
 }).on("data", function(log){
   const decodedLogs = abiDecoder.decodeLogs([log]);
-  showError('******** Redistribution RECEIVED EVENT ********');
+  showLog('******** Redistribution RECEIVED EVENT ********');
   //console.log(decodedLogs)
   decodedLogs.forEach(log => {
-	showError(log)
+	showLog(log)
 	//log.events.forEach(event => {
 	//	console.log(event)
     //});
   });
-  showError('*********** END Redistribution EVENT ***********');
+  showLog('*********** END Redistribution EVENT ***********');
 });
 }
 
@@ -1033,15 +1213,51 @@ web3.eth.subscribe('logs', options2, function(error, result){
   if (error) console.error(error);
 }).on("data", function(log){
   const decodedLogs = abiDecoder.decodeLogs([log]);
-  showError('******** StakeRegistry RECEIVED EVENT ********');
+  if (decodedLogs
+  && decodedLogs.length == 1
+  && decodedLogs[0].name == "StakeFrozen"
+  && decodedLogs[0].events.length == 2
+  && decodedLogs[0].events[0].name == "slashed"
+  && decodedLogs[0].events[1].name == "time"
+  && decodedLogs[0].events[0].type == "bytes32"
+  && decodedLogs[0].events[1].type == "uint256") {
+		showLogError(`${formatOverlay(decodedLogs[0].events[0].value,12)} Frozen for ${decodedLogs[0].events[1].value} blocks`)
+  }
+  else if (decodedLogs
+  && decodedLogs.length == 1
+  && decodedLogs[0].name == "StakeFrozen"
+  && decodedLogs[0].events.length == 2
+  && decodedLogs[0].events[0].name == "slashed"
+  && decodedLogs[0].events[1].name == "amount"
+  && decodedLogs[0].events[0].type == "bytes32"
+  && decodedLogs[0].events[1].type == "uint256") {
+		showLogError(`${formatOverlay(decodedLogs[0].events[0].value,12)} Slashed ${wholeBZZ(decodedLogs[0].events[1].value)}`)
+  }
+  else if (decodedLogs
+  && decodedLogs.length == 1
+  && decodedLogs[0].name == "StakeUpdated"
+  && decodedLogs[0].events.length == 4
+  && decodedLogs[0].events[0].name == "overlay"
+  && decodedLogs[0].events[1].name == "stakeAmount"
+  && decodedLogs[0].events[2].name == "owner"
+  && decodedLogs[0].events[3].name == "lastUpdatedBlock"
+  && decodedLogs[0].events[0].type == "bytes32"
+  && decodedLogs[0].events[1].type == "uint256"
+  && decodedLogs[0].events[2].type == "address"
+  && decodedLogs[0].events[3].type == "uint256") {
+		showLogError(`${formatOverlay(decodedLogs[0].events[0].value,12)} Updated ${wholeBZZ(decodedLogs[0].events[1].value)}`)
+  }
+  else {
+  showLog('******** StakeRegistry RECEIVED EVENT ********');
   //console.log(decodedLogs)
   decodedLogs.forEach(log => {
-	showError(log)
+	showLog(log)
 	//log.events.forEach(event => {
 	//	console.log(event)
     //});
   });
-  showError('*********** END StakeRegistry EVENT ***********');
+  showLog('*********** END StakeRegistry EVENT ***********');
+  }
 });
 }
 
@@ -1063,26 +1279,32 @@ web3.eth.subscribe('logs', options3, function(error, result){
   && decodedLogs[0].events[0].type == "address"
   && decodedLogs[0].events[1].type == "address"
   && decodedLogs[0].events[2].type == "uint256") {
-		var bzz = decodedLogs[0].events[2].value
-		while (bzz.length <= 16) {
-			bzz = '0' + bzz
-		}
-		bzz = bzz.slice(0,bzz.length-16)+"."+bzz.slice(bzz.length-16)
-		while (bzz.slice(-1) == '0') {
-			bzz = bzz.slice(0,-1)
-		}
-        if (bzz.slice(-1) == '.') bzz = bzz + '0'
-		showError(`${bzz} gBZZ from ${decodedLogs[0].events[0].value} to ${decodedLogs[0].events[1].value}`)
-  } else {
-  showError('******** gBZZ Token RECEIVED EVENT ********');
+		var bzz = wholeBZZ(decodedLogs[0].events[2].value)
+		showLogError(`${bzz} gBZZ from ${formatAccount(decodedLogs[0].events[0].value,12)} to ${formatAccount(decodedLogs[0].events[1].value,12)}`)
+  }
+  else if (decodedLogs
+  && decodedLogs.length == 1
+  && decodedLogs[0].name == "Approval"
+  && decodedLogs[0].events.length == 3
+  && decodedLogs[0].events[0].name == "owner"
+  && decodedLogs[0].events[1].name == "spender"
+  && decodedLogs[0].events[2].name == "value"
+  && decodedLogs[0].events[0].type == "address"
+  && decodedLogs[0].events[1].type == "address"
+  && decodedLogs[0].events[2].type == "uint256") {
+		var bzz = wholeBZZ(decodedLogs[0].events[2].value)
+		showLogError(`${bzz} gBZZ Approved from ${formatAccount(decodedLogs[0].events[0].value,12)} to ${formatAccount(decodedLogs[0].events[1].value,12)}`)
+  }
+  else {
+  showLog('******** gBZZ Token RECEIVED EVENT ********');
   //console.log(decodedLogs)
   decodedLogs.forEach(log => {
-	showError(log)
+	showLog(log)
 	//log.events.forEach(event => {
 	//	console.log(event)
     //});
   });
-  showError('*********** END gBZZ Token EVENT ***********');
+  showLog('*********** END gBZZ Token EVENT ***********');
   }
 });
 }
