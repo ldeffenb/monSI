@@ -357,8 +357,8 @@ function addBoxes()
 
 	blocksBox = blessed.box({
 	  top: '75%',
-	  left: '60%',
-	  width: '15%',
+	  left: '55%',
+	  width: '20%',
 	  height: '100%',
 	  content: 'hh:mm:ss bbbbbbb nns mmmms',
 	  scrollable: true,
@@ -384,7 +384,7 @@ function addBoxes()
 	  //height: '100%',
 	  top: '75%',
 	  left: 0,
-	  width: blocksBox?'60%':'75%',
+	  width: blocksBox?'55%':'75%',
 	  height: '100%',
 	  content: '{left}error and trace\noutput will appear here\nand scroll down{/left}',
 	  scrollable: true,
@@ -1056,10 +1056,25 @@ async function updateBlockHeader(blockHeader)
 	const blockTime = new Date(blockHeader.timestamp*1000)
 	const dt = blockTime.toISOString()
 	var gas = ''
+	var gasPercent = ''
 	if (blockHeader.gasLimit > 0) {
-		gas = ` ${Math.floor(blockHeader.gasUsed*1000/blockHeader.gasLimit)/10.0}%`
+		gasPercent = `${Math.floor(blockHeader.gasUsed*1000/blockHeader.gasLimit)/10.0}%`
+	} else gasPercent = `${blockHeader.gasUsed}/${blockHeader.gasLimit}`
+	if (blockHeader.baseFeePerGas) {
+		const price = new BN(blockHeader.baseFeePerGas)
+		var units = 'gwei'
+		if (price.cmp(oneGwei) < 0)	// Less than 1 gwei, switch to mwei
+			units = 'mwei'
+		var gwei = web3.utils.fromWei(price, units)
+		const dot = gwei.indexOf('.')
+		if (dot > 0) {
+			if (dot < 3)
+				gwei = gwei.slice(0,(4-dot+1))
+			else gwei = gwei.slice(0,dot)
+		}
+		gas = ` ${gwei}${units}`
 	}
-	var text = `${roundString(blockHeader.number)} Block: ${blockHeader.number} Gas: ${blockHeader.gasUsed}/${blockHeader.gasLimit}${gas} Time: ${dt}`;
+	var text = `${roundString(blockHeader.number)} Block: ${blockHeader.number} Gas: ${gasPercent}${gas} Time: ${dt}`;
 	var deltaBlockTime = ''
 	if (lastBlockTime) {
 		deltaBlockTime = ` +${blockHeader.timestamp-lastBlockTime}s`
@@ -1144,7 +1159,13 @@ async function updateGasPricing()
 	if (price.cmp(oneGwei) < 0)	// Less than 1 gwei, switch to mwei
 		units = 'mwei'
 	const gwei = web3.utils.fromWei(price, units)
-	var text = `{center}Gas Price: ${gwei}${units} ${percent}%{/center}`
+	const dot = gwei.indexOf('.')
+	if (dot > 0) {
+		if (dot < 3)
+			gwei = gwei.slice(0,(4-dot+1))
+		else gwei = gwei.slice(0,dot)
+	}
+	var text = `{center}Gas Price: ${gwei} ${units} ${percent}%{/center}`
 	winnersBox.setLine(Winners.length+4 , `{center}${priceHistory}{/center}`);
 	winnersBox.insertLine(Winners.length+5 , text);
 	screen.render()
