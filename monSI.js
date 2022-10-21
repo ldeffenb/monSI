@@ -1153,10 +1153,11 @@ async function updateGasPricing()
 	} else percent = new BN(0)
 	const p10 = lastPrice.divn(10)
 	//delta.iabs()
-	const bigChange = delta.abs() > p10
-	
+	const bigChange = (delta.abs().cmp(p10) > 0)
+	//showError(`${cmp} ${lastPrice}->${price} ${delta} ${delta.abs()} > ${p10} ${bigChange} ${percent}%`)
+
 	if (!lastPrice.isZero()) {
-		if (bigChange && priceHistory.length > 0) {
+		if (bigChange) {
 			if (cmp < 0) priceHistory = priceHistory + '{green-fg}v{/green-fg}'
 			if (cmp == 0) priceHistory = priceHistory + '{yellow-fg}-{/yellow-fg}'
 			if (cmp > 0) priceHistory = priceHistory + '{red-fg}^{/red-fg}'
