@@ -17,7 +17,8 @@ const preloadRounds = 4		// Startup can take a LONG time if you make this large!
 const myOverlays = ["0xdf6c1b18cc21d07e0b89b05d16153002037f76982709ff879f2e6d60de7d2127",
 					"0xe1dc994c4a8ba82c183cd9b773210d7c88061c507fb9a9dfcbccea04b8380134",
 					"0x7cd1aa0441c0624b9e7d10c0c06c6de184c1bbe69c8c6c151bede80c4ecea8b2",
-					"0x86d7a00d43cbb9810b85031cb655ce073ab99acf78956520e0b287c847424249"]
+					"0x86d7a00d43cbb9810b85031cb655ce073ab99acf78956520e0b287c847424249",
+					"0x47d48ff50fcfe118ecadb97d6cefe17397a0eeb554e4112b7a24d14ded8451bc"]
 
 
 //import blessed from 'blessed';
@@ -679,6 +680,8 @@ var Rounds = []
 
 function formatRound(round)
 {
+//	addRound((PlayersRound+1)*blocksPerRound, new Date(), PlayersCommits, PlayersReveals, 0, 0, 0, undefined, undefined, undefined, undefined)
+
 	var result = `${round.id}(${round.residual}) ${round.commits}-${round.reveals}`
 	if (round.slashes > 0) result = result + `={red-fg}${round.slashes}{/red-fg}`
 	var sameDepth = true
@@ -697,9 +700,11 @@ function formatRound(round)
 		else result = result + `{${color}-fg}${round.hashes[i].count}^${round.hashes[i].depth}{/${color}-fg}`
 	}
 	if (round.freezes > 0) result = result + `={blue-fg}${round.freezes}{/blue-fg}`
-	result = result + ` ${formatOverlay(round.winner,12)}`
-	result = result + ` ^${round.depth}`
-	result = result + ' {green-fg}' + shortNum(round.reward,true) + '{/green-fg}'
+	if (round.winner) {
+		result = result + ` ${formatOverlay(round.winner,12)}`
+		if (round.depth) result = result + ` ^${round.depth}`
+		if (round.reward) result = result + ' {green-fg}' + shortNum(round.reward,true) + '{/green-fg}'
+	} else result = result + ' {yellow-fg}UNCLAIMED{/yellow-fg}'
 	return result
 }
 
@@ -712,10 +717,15 @@ function roundString(blockNumber)
 	return `${roundFromBlock(blockNumber)}(${blockNumber%blocksPerRound})`
 }
 
+var LastRoundID = 0
+
 function addRound(blockNumber, blockTime, commits, reveals, slashes, hashes, freezes, truth, depth, reward, winner)
 {
+	const id = roundFromBlock(blockNumber)
+	if (LastRoundID == id) return		// Ignore duplicate end-of-round reports
+	LastRoundID = id
 	if (typeof(reward) == 'string') reward = Number(reward)
-	const round = { when: blockTime, id: roundFromBlock(blockNumber), residual: blockNumber%blocksPerRound, commits: commits, reveals: reveals, slashes: slashes, hashes: hashes, freezes: freezes, truth: truth, depth: depth, reward: reward, winner: winner }
+	const round = { when: blockTime, id: id, residual: blockNumber%blocksPerRound, commits: commits, reveals: reveals, slashes: slashes, hashes: hashes, freezes: freezes, truth: truth, depth: depth, reward: reward, winner: winner }
 	//showError(`${formatRound(round)}`)
 	
 	var line = specificLocalTime(round.when)+' '+formatRound(round)
@@ -751,12 +761,16 @@ function addHash(blockNumber, hash, depth)
 
 var Players = []
 var PlayersRound = 0
+var PlayersCommits = 0
+var PlayersReveals = 0
 
 function clearPlayers()
 {
 	for (var i=0; i<Players.length; i++)
 		playersBox.setLine(i,'')
 	Players = []
+	PlayersCommits = 0
+	PlayersReveals = 0
 }
 
 async function updatePlayer(p)
@@ -772,11 +786,21 @@ async function updatePlayer(p)
 async function addPlayer(blockTime, blockNumber, overlay, account, phase, depth, hash)
 {
 	const round = roundFromBlock(blockNumber)
-	if (round != PlayersRound)
+	if (round != PlayersRound) {
+		if (PlayersRound != 0) {
+			if (PlayersCommits || PlayersReveals) {
+				addRound((PlayersRound+1)*blocksPerRound-1, blockTime, PlayersCommits, PlayersReveals, 0, Hashes, 0, undefined, undefined, undefined, undefined)
+				clearHashes()
+			}
+		}
 		clearPlayers()
+	}
 	PlayersRound = round
 	
 	//showError(`${roundString(blockNumber)} Player ${leftID(overlay,16)} ${phase} ${depth} ${shortID(hash,16)}`, overlay)
+	
+	if (phase == 'commit') PlayersCommits++
+	else if (phase == 'reveal') PlayersReveals++
 
 	const player = {when: blockTime, overlay: overlay, blockNumber: blockNumber, phase: phase, depth: depth, hash: hash}
 	for (var p=0; p<Players.length; p++)
@@ -1242,17 +1266,17 @@ web3.eth.subscribe('logs', options2, function(error, result){
   && decodedLogs[0].events[1].name == "time"
   && decodedLogs[0].events[0].type == "bytes32"
   && decodedLogs[0].events[1].type == "uint256") {
-		showLogError(`${formatOverlay(decodedLogs[0].events[0].value,12)} Frozen for ${decodedLogs[0].events[1].value} blocks`)
+		showLogError(`${formatOverlay(decodedLogs[0].events[0].value,12)} {blue-fg}FROZEN{/blue-fg} for ${decodedLogs[0].events[1].value} blocks`)
   }
   else if (decodedLogs
   && decodedLogs.length == 1
-  && decodedLogs[0].name == "StakeFrozen"
+  && decodedLogs[0].name == "StakeSlashed"
   && decodedLogs[0].events.length == 2
   && decodedLogs[0].events[0].name == "slashed"
   && decodedLogs[0].events[1].name == "amount"
   && decodedLogs[0].events[0].type == "bytes32"
   && decodedLogs[0].events[1].type == "uint256") {
-		showLogError(`${formatOverlay(decodedLogs[0].events[0].value,12)} Slashed ${wholeBZZ(decodedLogs[0].events[1].value)}`)
+		showLogError(`${formatOverlay(decodedLogs[0].events[0].value,12)} {red-fg}SLASHED{/red-fg} ${wholeBZZ(decodedLogs[0].events[1].value)}`)
   }
   else if (decodedLogs
   && decodedLogs.length == 1
