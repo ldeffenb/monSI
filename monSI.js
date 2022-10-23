@@ -1291,7 +1291,7 @@ web3.eth.subscribe('logs', options2, function(error, result){
   && decodedLogs[0].events[1].type == "uint256"
   && decodedLogs[0].events[2].type == "address"
   && decodedLogs[0].events[3].type == "uint256") {
-		showLogError(`${formatOverlay(decodedLogs[0].events[0].value,12)} Updated ${wholeBZZ(decodedLogs[0].events[1].value)}`)
+		showLogError(`${formatOverlay(decodedLogs[0].events[0].value,12)} StakeUpdated ${wholeBZZ(decodedLogs[0].events[1].value)}`)
   }
   else {
   showLog('******** StakeRegistry RECEIVED EVENT ********');
