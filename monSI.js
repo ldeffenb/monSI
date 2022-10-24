@@ -5,6 +5,7 @@ const redistributionContract = "0xF4963031E8b9f9659CB6ed35E53c031D76480EAD".toLo
 const stakeRegistryContract = "0x18391158435582D5bE5ac1640ab5E2825F68d3a4".toLowerCase()
 const gBZZTokenContract = "0x2aC3c1d3e24b45c6C310534Bc2Dd84B5ed576335".toLowerCase()
 const postageStampContract = "0x7aAC0f092F7b961145900839Ed6d54b1980F200c".toLowerCase()
+const BlockRate = 12	// Expected rate of blocks from chain (12 for goerli, 5 for gnosis, ?? for mainnet)
 
 const RedistributionABI = [{"inputs":[{"internalType":"address","name":"staking","type":"address"},{"internalType":"address","name":"postageContract","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"_count","type":"uint256"}],"name":"CountCommits","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"_count","type":"uint256"}],"name":"CountReveals","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"l","type":"string"}],"name":"Log","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"l","type":"string"},{"indexed":false,"internalType":"bytes32","name":"b","type":"bytes32"}],"name":"LogBytes32","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Paused","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"previousAdminRole","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"newAdminRole","type":"bytes32"}],"name":"RoleAdminChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"address","name":"sender","type":"address"}],"name":"RoleGranted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"address","name":"sender","type":"address"}],"name":"RoleRevoked","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"hash","type":"bytes32"},{"indexed":false,"internalType":"uint8","name":"depth","type":"uint8"}],"name":"TruthSelected","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Unpaused","type":"event"},{"anonymous":false,"inputs":[{"components":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"stake","type":"uint256"},{"internalType":"uint256","name":"stakeDensity","type":"uint256"},{"internalType":"bytes32","name":"hash","type":"bytes32"},{"internalType":"uint8","name":"depth","type":"uint8"}],"indexed":false,"internalType":"struct Redistribution.Reveal","name":"winner","type":"tuple"}],"name":"WinnerSelected","type":"event"},{"inputs":[],"name":"DEFAULT_ADMIN_ROLE","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PAUSER_ROLE","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PostageContract","outputs":[{"internalType":"contract PostageStamp","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"Stakes","outputs":[{"internalType":"contract StakeRegistry","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_obfuscatedHash","type":"bytes32"},{"internalType":"bytes32","name":"_overlay","type":"bytes32"}],"name":"commit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"currentClaimRound","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentCommitRound","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"currentCommits","outputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"uint256","name":"stake","type":"uint256"},{"internalType":"bytes32","name":"obfuscatedHash","type":"bytes32"},{"internalType":"bool","name":"revealed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentPhaseClaim","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentPhaseCommit","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentPhaseReveal","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentRevealRound","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"currentReveals","outputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"stake","type":"uint256"},{"internalType":"uint256","name":"stakeDensity","type":"uint256"},{"internalType":"bytes32","name":"hash","type":"bytes32"},{"internalType":"uint8","name":"depth","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentRound","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentRoundAnchor","outputs":[{"internalType":"bytes32","name":"returnVal","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentRoundReveals","outputs":[{"components":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"stake","type":"uint256"},{"internalType":"uint256","name":"stakeDensity","type":"uint256"},{"internalType":"bytes32","name":"hash","type":"bytes32"},{"internalType":"uint8","name":"depth","type":"uint8"}],"internalType":"struct Redistribution.Reveal[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentSeed","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"}],"name":"getRoleAdmin","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"grantRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"hasRole","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"A","type":"bytes32"},{"internalType":"bytes32","name":"B","type":"bytes32"},{"internalType":"uint8","name":"minimum","type":"uint8"}],"name":"inProximity","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint8","name":"depth","type":"uint8"}],"name":"isParticipatingInUpcomingRound","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_overlay","type":"bytes32"}],"name":"isWinner","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"minimumStake","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextSeed","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"renounceRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_overlay","type":"bytes32"},{"internalType":"uint8","name":"_depth","type":"uint8"},{"internalType":"bytes32","name":"_hash","type":"bytes32"},{"internalType":"bytes32","name":"_revealNonce","type":"bytes32"}],"name":"reveal","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"revokeRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"roundLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"winner","outputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"stake","type":"uint256"},{"internalType":"uint256","name":"stakeDensity","type":"uint256"},{"internalType":"bytes32","name":"hash","type":"bytes32"},{"internalType":"uint8","name":"depth","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"_overlay","type":"bytes32"},{"internalType":"uint8","name":"_depth","type":"uint8"},{"internalType":"bytes32","name":"_hash","type":"bytes32"},{"internalType":"bytes32","name":"revealNonce","type":"bytes32"}],"name":"wrapCommit","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"pure","type":"function"}]
 const StakeRegistryABI = [{"inputs":[{"internalType":"address","name":"_bzzToken","type":"address"},{"internalType":"uint64","name":"_NetworkId","type":"uint64"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Paused","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"previousAdminRole","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"newAdminRole","type":"bytes32"}],"name":"RoleAdminChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"address","name":"sender","type":"address"}],"name":"RoleGranted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"role","type":"bytes32"},{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"address","name":"sender","type":"address"}],"name":"RoleRevoked","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"slashed","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"time","type":"uint256"}],"name":"StakeFrozen","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"slashed","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"StakeSlashed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"bytes32","name":"overlay","type":"bytes32"},{"indexed":false,"internalType":"uint256","name":"stakeAmount","type":"uint256"},{"indexed":false,"internalType":"address","name":"owner","type":"address"},{"indexed":false,"internalType":"uint256","name":"lastUpdatedBlock","type":"uint256"}],"name":"StakeUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"account","type":"address"}],"name":"Unpaused","type":"event"},{"inputs":[],"name":"DEFAULT_ADMIN_ROLE","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PAUSER_ROLE","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REDISTRIBUTOR_ROLE","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bzzToken","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_owner","type":"address"},{"internalType":"bytes32","name":"nonce","type":"bytes32"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"depositStake","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"time","type":"uint256"}],"name":"freezeDeposit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"}],"name":"getRoleAdmin","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"grantRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"hasRole","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"}],"name":"lastUpdatedBlockNumberOfOverlay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"}],"name":"ownerOfOverlay","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"pause","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"pot","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"renounceRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"role","type":"bytes32"},{"internalType":"address","name":"account","type":"address"}],"name":"revokeRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"slashDeposit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"}],"name":"stakeOfOverlay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"stakes","outputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"stakeAmount","type":"uint256"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"uint256","name":"lastUpdatedBlockNumber","type":"uint256"},{"internalType":"bool","name":"isValue","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"unPause","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"}],"name":"usableStakeOfOverlay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"overlay","type":"bytes32"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawFromStake","outputs":[],"stateMutability":"nonpayable","type":"function"}]
@@ -201,10 +202,12 @@ var boxColors = [ 'white', 'blue', 'red', 'green', 'magenta', 'yellow' ]
 var boxWidth = 45
 
 screen.key(['tab'], function (ch, key) {
-	boxes[boxFocus].style.border.fg = 'white'
-	boxFocus = (boxFocus+1)%boxCount
-	boxes[boxFocus].style.border.fg = 'green'
-	screen.render()
+	if (boxCount > 0) {
+		boxes[boxFocus].style.border.fg = 'white'
+		boxFocus = (boxFocus+1)%boxCount
+		boxes[boxFocus].style.border.fg = 'green'
+		screen.render()
+	}
 })
 
 var numWidth = 3		// This is horizontal boxes
@@ -569,6 +572,13 @@ function formatOverlay(overlay,n)
 	return result
 }
 
+function formatAccountPlusOverlay(account,n)
+{
+	const overlay = getAccountOverlay(account)
+	if (overlay) return formatAccount(account,n/2) + "("+formatOverlay(overlay,n)+")"
+	else return formatAccount(account,n)
+}
+
 
 
 var Winners = []
@@ -578,6 +588,8 @@ function refreshWinners(winner)
 	if (winner) winner.text = formatWinner(winner)
 	Winners.sort(function(l,r){
 		if (l.overlay == r.overlay) return 0
+		if (l.highlight && !r.highlight) return -1
+		if (!l.highlight && r.highlight) return 1
 		if (l.overlay < r.overlay) return -1
 		if (l.overlay > r.overlay) return 1
 	})
@@ -617,7 +629,7 @@ function getWinner(blockTime, overlay, account)
 		}
 	}
 
-	const winner = {when: blockTime, overlay: overlay, account: account, amount: 0}
+	const winner = {when: blockTime, overlay: overlay, account: account, amount: 0, highlight: highlightOverlays.includes(overlay.toLowerCase())}
 	Winners[Winners.length] = winner
 
 	winner.text = formatWinner(Winners[Winners.length-1])
@@ -632,20 +644,21 @@ function updateWinner(blockTime, overlay, account, amount)
 
 	const winner = getWinner(blockTime, overlay, account)
 	if (!winner) return
-	winner.amount += amount
-	if (amount < 0) {
-		if (!winner.slashCount) winner.slashCount = 1
-		else winner.slashCount++
-	}
-	else if (amount == 0) {
+	if (isUndefined(amount)) {
 		if (!winner.playCount) winner.playCount = 1
 		else winner.playCount++
 		if (!winner.winCount) winner.winCount = 0
-	}
-	else if (amount > 0) {
-		if (!winner.playCount) winner.playCount = 1
-		if (!winner.winCount) winner.winCount = 1
-		else winner.winCount++
+	} else {
+		winner.amount += amount
+		if (amount < 0) {
+			if (!winner.slashCount) winner.slashCount = 1
+			else winner.slashCount++
+		}
+		else if (amount >= 0) {
+			if (!winner.playCount) winner.playCount = 1
+			if (!winner.winCount) winner.winCount = 1
+			else winner.winCount++
+		}
 	}
 	refreshWinners(winner)
 }
@@ -692,18 +705,21 @@ function formatRound(round)
 	{
 		if (i>0) result = result + '+'
 		else result = result + ' '
-		var color
+		var term = `${round.hashes[i].count}`
+		if (!sameDepth) term = term + `^${round.hashes[i].depth}`
 		if (round.hashes[i].hash == round.truth)
-			color = 'green'
-		else color = 'red'
-		if (sameDepth) result = result + `{${color}-fg}${round.hashes[i].count}{/${color}-fg}`
-		else result = result + `{${color}-fg}${round.hashes[i].count}^${round.hashes[i].depth}{/${color}-fg}`
+			term = `{green-fg}${term}{/green-fg}`
+		else term = `{red-fg}${term}{/red-fg}`
+		if (round.hashes[i].highlight
+		&& (round.hashes.length > 1 || round.hashes[i].count > 1))
+			term = `{yellow-bg}${term}{/yellow-bg}`
+		result = result + term
 	}
 	if (round.freezes > 0) result = result + `={blue-fg}${round.freezes}{/blue-fg}`
 	if (round.winner) {
 		result = result + ` ${formatOverlay(round.winner,12)}`
 		if (round.depth) result = result + ` ^${round.depth}`
-		if (round.reward) result = result + ' {green-fg}' + shortNum(round.reward,true) + '{/green-fg}'
+		if (!isUndefined(round.reward)) result = result + ' {green-fg}' + shortNum(round.reward,true) + '{/green-fg}'
 	} else result = result + ' {yellow-fg}UNCLAIMED{/yellow-fg}'
 	return result
 }
@@ -741,7 +757,7 @@ function clearHashes()
 	Hashes = []
 }
 
-function addHash(blockNumber, hash, depth)
+function addHash(blockNumber, hash, depth, highlight)
 {
 	const round = roundFromBlock(blockNumber)
 	if (round != HashRound)
@@ -752,11 +768,12 @@ function addHash(blockNumber, hash, depth)
 	{
 		if (Hashes[h].hash == hash && Hashes[h].depth == depth) {
 			Hashes[h].count++
+			if (highlight) Hashes[h].highlight = highlight
 			return
 		}
 	}
 	//showError(`${roundString(blockNumber)} new hash ${shortID(hash,16)}`)
-	Hashes[Hashes.length] = {hash: hash, depth: depth, count: 1}
+	Hashes[Hashes.length] = {hash: hash, depth: depth, count: 1, highlight: highlight}
 }
 
 var Players = []
@@ -813,7 +830,7 @@ async function addPlayer(blockTime, blockNumber, overlay, account, phase, depth,
 	}
 	Players[Players.length] = player
 	updatePlayer(Players.length-1)
-	updateWinner(blockTime, overlay, account, 0.0)	// new players in the round count as playing
+	updateWinner(blockTime, overlay, account, undefined)	// new players in the round count as playing
 	return true
 }
 
@@ -855,9 +872,10 @@ async function handleReveal(blockTime, transaction, receipt, input)
 	&& input.params[1].type == 'uint8'
 	&& input.params[2].type == 'bytes32'
 	&& input.params[3].type == 'bytes32') {
-		associateOverlay(blockTime, input.params[0].value, transaction.from)
-		addHash(receipt.blockNumber, input.params[2].value, input.params[1].value)
-		return addPlayer(blockTime, receipt.blockNumber, input.params[0].value, transaction.from, "reveal", input.params[1].value, input.params[2].value)
+		const overlay = input.params[0].value
+		associateOverlay(blockTime, overlay, transaction.from)
+		addHash(receipt.blockNumber, input.params[2].value, input.params[1].value, highlightOverlays.includes(overlay.toLowerCase()))
+		return addPlayer(blockTime, receipt.blockNumber, overlay, transaction.from, "reveal", input.params[1].value, input.params[2].value)
 	}
 	return false
 }
@@ -949,7 +967,7 @@ async function handleClaim(blockTime, transaction, receipt, input)
 					clearHashes()
 				}
 
-				if (value) {
+				if (!isUndefined(value)) {
 					updateWinner(blockTime, getAccountOverlay(transaction.from), transaction.from, value)
 				}
 				if (truth && depth) {
@@ -1006,9 +1024,11 @@ async function updateBlockTransactions(blockNumber, blockTime)
 		var receipt = await web3.eth.getTransactionReceipt(tx)
 		if (!receipt || !receipt.status) return
 		const input = abiDecoder.decodeMethod(transaction.input)
-		if (!input || !input.name)
-			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccount(transaction.from,12)} -> ${formatAccount(transaction.to,12)} ${shortETH(Number(transaction.value))}`, undefined, blockTime)
-		else {
+		if (!input || !input.name) {
+			if (Number(transaction.value) == 0)
+				showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccountPlusOverlay(transaction.from,12)} CANCEL transaction (0gETH)`, undefined, blockTime)
+			else showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccountPlusOverlay(transaction.from,12)} -> ${formatAccountPlusOverlay(transaction.to,12)} ${shortETH(Number(transaction.value))}`, undefined, blockTime)
+		} else {
 			if (transaction.to.toLowerCase() == stakeRegistryContract.toLowerCase()
 			&& input.name == "depositStake"
 			&& input.params.length == 3
@@ -1018,7 +1038,7 @@ async function updateBlockTransactions(blockNumber, blockTime)
 			&& input.params[0].type == 'address'
 			&& input.params[1].type == 'bytes32'
 			&& input.params[2].type == 'uint256') {
-			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccount(transaction.from,12)} ${input.name}(${formatOverlay(input.params[0].value,12)},${wholeBZZ(input.params[2].value)})`, undefined, blockTime)
+			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccountPlusOverlay(transaction.from,12)} ${input.name}(${formatAccountPlusOverlay(input.params[0].value,12)},${wholeBZZ(input.params[2].value)})`, undefined, blockTime)
 			}
 			else if (transaction.to.toLowerCase() == gBZZTokenContract.toLowerCase()
 			&& input.name == "approve"
@@ -1027,7 +1047,7 @@ async function updateBlockTransactions(blockNumber, blockTime)
 			&& input.params[1].name == 'amount'
 			&& input.params[0].type == 'address'
 			&& input.params[1].type == 'uint256') {
-			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccount(transaction.from,12)} ${input.name}(${formatAccount(input.params[0].value,12)},${wholeBZZ(input.params[1].value)})`, undefined, blockTime)
+			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccountPlusOverlay(transaction.from,12)} ${input.name}(${formatAccountPlusOverlay(input.params[0].value,12)},${wholeBZZ(input.params[1].value)})`, undefined, blockTime)
 			}
 			else if (transaction.to.toLowerCase() == gBZZTokenContract.toLowerCase()
 			&& input.name == "transfer"
@@ -1036,18 +1056,18 @@ async function updateBlockTransactions(blockNumber, blockTime)
 			&& input.params[1].name == 'amount'
 			&& input.params[0].type == 'address'
 			&& input.params[1].type == 'uint256') {
-			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccount(transaction.from,12)} ${input.name}(${formatAccount(input.params[0].value,12)},${wholeBZZ(input.params[1].value)})`, undefined, blockTime)
+			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccountPlusOverlay(transaction.from,12)} ${input.name}(${formatAccountPlusOverlay(input.params[0].value,12)},${wholeBZZ(input.params[1].value)})`, undefined, blockTime)
 			}
 			else {
 			var args = ''
 			input.params.forEach(param => {
 				if (args != '') args = args + ','
 				if (param.type == 'address')
-					args = args + `${param.name}: ${formatAccount(param.value)}`
+					args = args + `${param.name}: ${formatAccountPlusOverlay(param.value)}`
 				else args = args + `${param.name}: ${param.value}`
 			});
 			if (args.length > 32) args = '***'
-			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccount(transaction.from,12)} -> ${formatAccount(transaction.to,12)} ${input.name}(${args})`, undefined, blockTime)
+			showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccountPlusOverlay(transaction.from,12)} -> ${formatAccountPlusOverlay(transaction.to,12)} ${input.name}(${args})`, undefined, blockTime)
 			}
 		}
 		if (false) {
@@ -1073,47 +1093,7 @@ async function updateBlockTransactions(blockNumber, blockTime)
   }
 }
 
-var lastBlockTime = 0
 
-async function updateBlockHeader(blockHeader)
-{
-	const blockTime = new Date(blockHeader.timestamp*1000)
-	const dt = blockTime.toISOString()
-	var gas = ''
-	var gasPercent = ''
-	if (blockHeader.gasLimit > 0) {
-		gasPercent = `${Math.floor(blockHeader.gasUsed*1000/blockHeader.gasLimit)/10.0}%`
-	} else gasPercent = `${blockHeader.gasUsed}/${blockHeader.gasLimit}`
-	if (blockHeader.baseFeePerGas) {
-		const price = new BN(blockHeader.baseFeePerGas)
-		var units = 'gwei'
-		if (price.cmp(oneGwei) < 0)	// Less than 1 gwei, switch to mwei
-			units = 'mwei'
-		var gwei = web3.utils.fromWei(price, units)
-		const dot = gwei.indexOf('.')
-		if (dot > 0) {
-			if (dot < 3)
-				gwei = gwei.slice(0,(4-dot+1))
-			else gwei = gwei.slice(0,dot)
-		}
-		gas = ` ${gwei}${units}`
-	}
-	var text = `${roundString(blockHeader.number)} Block: ${blockHeader.number} Gas: ${gasPercent}${gas} Time: ${dt}`;
-	var deltaBlockTime = ''
-	if (lastBlockTime) {
-		deltaBlockTime = ` +${blockHeader.timestamp-lastBlockTime}s`
-		text = text + deltaBlockTime
-	}
-	if (blocksBox) blocksBox.insertLine(0,`${specificLocalTime(blockTime)} ${blockHeader.number}${gas}${deltaBlockTime}`)
-	lastBlockTime = blockHeader.timestamp
-	showError(text, "block");
-	const start = Date.now()
-	await updateBlockTransactions(blockHeader.number, blockTime)
-	const elapsed = Date.now() - start
-	text = text + ` ${elapsed}ms`
-	if (blocksBox) blocksBox.setLine(0,`${specificLocalTime(blockTime)} ${blockHeader.number}${gas}${deltaBlockTime} ${elapsed}ms`)
-	showError(text, "block");
-}
 
 const Web3 = require('web3');
 const abiDecoder = require('abi-decoder');
@@ -1136,25 +1116,46 @@ var BN = web3.utils.BN;	// Big number support for gas pricing
 
 
 
+var lastBlockTime = 0
+
+
 var priceHistory = ''
 var priceHistoryCount = 0
 var lastPrice = new BN(0)
+var lastBlockPrice = new BN(0)
 var oneGwei = new BN('1000000000')
+var oneMwei = new BN('1000000')
+var oneKwei = new BN('1000')
 
-async function updateGasPricing()
+async function updateGasPricing(price)
 {
-	const price = new BN(await web3.eth.getGasPrice())
+	var units = 'gwei'
+	if (price.cmp(oneKwei) < 0) // Less than 1 kwei, switch to wei
+		units = 'wei'
+	else if (price.cmp(oneMwei) < 0) // Less than 1 mwei, switch to kwei
+		units = 'kwei'
+	else if (price.cmp(oneGwei) < 0)	// Less than 1 gwei, switch to mwei
+		units = 'mwei'
+	var gwei = web3.utils.fromWei(price, units)
+
+	const dot = gwei.indexOf('.')
+	if (dot > 0) {
+		if (dot < 3)
+			gwei = gwei.slice(0,4)
+		else gwei = gwei.slice(0,dot)
+	}
+		
+	var text = `{center}Gas Price: ${gwei} ${units}{/center}`
+	winnersBox.insertLine(Winners.length+4 , text);
+	screen.render()
+}
+
+async function updateGasHistory(price)
+{
 	const cmp = price.cmp(lastPrice)
 	const delta = price.sub(lastPrice)
-	var percent
-	if (!lastPrice.isZero()) {
-		const deltaBoost = delta.muln(100)
-		percent = deltaBoost.div(lastPrice)
-	} else percent = new BN(0)
 	const p10 = lastPrice.divn(10)
-	//delta.iabs()
 	const bigChange = (delta.abs().cmp(p10) > 0)
-	//showError(`${cmp} ${lastPrice}->${price} ${delta} ${delta.abs()} > ${p10} ${bigChange} ${percent}%`)
 
 	if (!lastPrice.isZero()) {
 		if (bigChange) {
@@ -1167,7 +1168,7 @@ async function updateGasPricing()
 			if (cmp > 0) priceHistory = priceHistory + '^'
 		}
 		priceHistoryCount++
-		if (priceHistoryCount > 36) {
+		if (priceHistoryCount > 34) {
 			if (priceHistory[0] == '{') {
 				for (var i=0; i<2; i++) {
 					const curly = priceHistory.indexOf('}')
@@ -1180,22 +1181,82 @@ async function updateGasPricing()
 	lastPrice = price
 	//if (priceHistory.length > 36) priceHistory = priceHistory.slice(1)
 
-	var units = 'gwei'
-	if (price.cmp(oneGwei) < 0)	// Less than 1 gwei, switch to mwei
-		units = 'mwei'
-	var gwei = web3.utils.fromWei(price, units)
-	const dot = gwei.indexOf('.')
-	if (dot > 0) {
-		if (dot < 3)
-			gwei = gwei.slice(0,(4-dot+1))
-		else gwei = gwei.slice(0,dot)
-	}
-	var text = `{center}Gas Price: ${gwei} ${units} ${percent}%{/center}`
-	winnersBox.setLine(Winners.length+4 , `{center}${priceHistory}{/center}`);
-	winnersBox.insertLine(Winners.length+5 , text);
-	screen.render()
+	blocksBox.setLine(0 , `{center}${priceHistory}{/center}`);
 }
 
+async function updateBlockHeader(blockHeader)
+{
+	const blockTime = new Date(blockHeader.timestamp*1000)
+	const dt = blockTime.toISOString()
+	var gas = ''
+	var gasPercent = ''
+	if (blockHeader.gasLimit > 0) {
+		gasPercent = `${Math.floor(blockHeader.gasUsed*1000/blockHeader.gasLimit)/10.0}%`
+	} else gasPercent = `${blockHeader.gasUsed}/${blockHeader.gasLimit}`
+	if (blockHeader.baseFeePerGas) {
+		const price = new BN(blockHeader.baseFeePerGas)
+		updateGasHistory(price)
+
+		var units = 'gwei'
+		if (price.cmp(oneKwei) < 0) // Less than 1 kwei, switch to wei
+			units = 'wei'
+		else if (price.cmp(oneMwei) < 0) // Less than 1 mwei, switch to kwei
+			units = 'kwei'
+		else if (price.cmp(oneGwei) < 0)	// Less than 1 gwei, switch to mwei
+			units = 'mwei'
+		var gwei = web3.utils.fromWei(price, units)
+
+		const dot = gwei.indexOf('.')
+		if (dot > 0) {
+			if (dot < 3)
+				gwei = gwei.slice(0,4)
+			else gwei = gwei.slice(0,dot)
+		}
+		
+		const cmp = price.cmp(lastBlockPrice)
+		const delta = price.sub(lastBlockPrice)
+		var percent
+		if (!lastBlockPrice.isZero()) {
+			const deltaBoost = delta.muln(100)
+			percent = deltaBoost.div(lastBlockPrice)
+		} else percent = new BN(0)
+		const p10 = lastBlockPrice.divn(10)
+		//delta.iabs()
+		const bigChange = (delta.abs().cmp(p10) > 0)
+		if (bigChange) {
+			if (cmp < 0) percent = `{green-fg}${percent}%{/green-fg}`
+			else if (cmp > 0) percent = `{red-fg}${percent}%{/red-fg}`
+			else percent `{yellow-fg}${percent}%{/yellow-fg}`
+		} else percent = `${percent}%`
+		//showError(`${cmp} ${lastBlockPrice}->${price} ${delta} ${delta.abs()} > ${p10} ${bigChange} ${percent}`)
+		lastBlockPrice = price
+		
+		gas = ` ${gwei}${units} ${percent}`
+	}
+	var text = `${roundString(blockHeader.number)} Block: ${blockHeader.number} Gas: ${gasPercent}${gas} Time: ${dt}`;
+	var deltaBlockTime = ''
+	if (lastBlockTime) {
+		const delta = blockHeader.timestamp-lastBlockTime
+		deltaBlockTime = ` ${delta}`
+		if (delta >= BlockRate*3)
+			deltaBlockTime = `{red-fg}${deltaBlockTime}{/red-fg}`
+		else if (delta >= BlockRate*2)
+			deltaBlockTime = `{yellow-fg}${deltaBlockTime}{/yellow-fg}`
+		else if (delta < BlockRate)
+			deltaBlockTime = `{green-fg}${deltaBlockTime}{/green-fg}`
+		deltaBlockTime = `${deltaBlockTime}s`
+		text = text + deltaBlockTime
+	}
+	if (blocksBox) blocksBox.insertLine(1,`${specificLocalTime(blockTime)} ${blockHeader.number}${deltaBlockTime}${gas}`)
+	lastBlockTime = blockHeader.timestamp
+	showError(text, "block");
+	const start = Date.now()
+	await updateBlockTransactions(blockHeader.number, blockTime)
+	const elapsed = Date.now() - start
+	text = text + ` ${elapsed}ms`
+	//if (blocksBox) blocksBox.setLine(1,`${specificLocalTime(blockTime)} ${blockHeader.number}${deltaBlockTime}${gas}${elapsed}ms`)
+	showError(text, "block");
+}
 
 
 
@@ -1209,7 +1270,7 @@ abiDecoder.addABI(gBZZTokenABI)
 	var startingBlockNumber = currentBlockNumber	// Default to just start in the present moment
 	startingBlockNumber -= blocksPerRound * preloadRounds	// But back off a few rounds if specified
 	//startingBlockNumber = 7745129	// Redistribution contract deployment block
-	//startingBlockNumber = 7753068	// First Commit transaction on Redistribution contract
+	startingBlockNumber = 7753068	// First Commit transaction on Redistribution contract
 	//startingBlockNumber = 51029*blocksPerRound		// First round to credit the winner
 	//startingBlockNumber = 51232*blocksPerRound		// First round to have a slash
 	//startingBlockNumber = Math.min(7786054, 7787724, 7786660, 7787122) // My nodes' first rounds
@@ -1326,7 +1387,7 @@ web3.eth.subscribe('logs', options3, function(error, result){
   && decodedLogs[0].events[1].type == "address"
   && decodedLogs[0].events[2].type == "uint256") {
 		var bzz = wholeBZZ(decodedLogs[0].events[2].value)
-		showLogError(`${bzz} gBZZ from ${formatAccount(decodedLogs[0].events[0].value,12)} to ${formatAccount(decodedLogs[0].events[1].value,12)}`)
+		showLogError(`${bzz} gBZZ from ${formatAccountPlusOverlay(decodedLogs[0].events[0].value,12)} to ${formatAccountPlusOverlay(decodedLogs[0].events[1].value,12)}`)
   }
   else if (decodedLogs
   && decodedLogs.length == 1
@@ -1339,7 +1400,7 @@ web3.eth.subscribe('logs', options3, function(error, result){
   && decodedLogs[0].events[1].type == "address"
   && decodedLogs[0].events[2].type == "uint256") {
 		var bzz = wholeBZZ(decodedLogs[0].events[2].value)
-		showLogError(`${bzz} gBZZ Approved from ${formatAccount(decodedLogs[0].events[0].value,12)} to ${formatAccount(decodedLogs[0].events[1].value,12)}`)
+		showLogError(`${bzz} gBZZ Approved from ${formatAccountPlusOverlay(decodedLogs[0].events[0].value,12)} to ${formatAccountPlusOverlay(decodedLogs[0].events[1].value,12)}`)
   }
   else {
   showLog('******** gBZZ Token RECEIVED EVENT ********');
@@ -1366,7 +1427,7 @@ blockSubscription.subscribe((error, result) => {
 	if (blockHeader.number == lastBlockNumber) return
 	lastBlockNumber = blockHeader.number
 	updateBlockHeader(blockHeader)
-	updateGasPricing()
+	updateGasPricing(new BN(await web3.eth.getGasPrice()))
 })
 
 }
