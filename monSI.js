@@ -1,6 +1,15 @@
-// These constants drive the environment to monitor
-const rpcURL = "ws://192.168.10.110:8547"
+// Sample startBlock or startRound values
+//startingBlockNumber = 7745129	// Redistribution contract deployment block
+//startingBlockNumber = 7753068	// First Commit transaction on Redistribution contract
+//startingBlockNumber = 51029*blocksPerRound		// First round to credit the winner
+//startingBlockNumber = 51232*blocksPerRound		// First round to have a slash
+//startingBlockNumber = Math.min(7786054, 7787724, 7786660, 7787122) // My nodes' first rounds
 
+//startingBlockNumber = 51323*blocksPerRound	// Recent slash followed by freeze
+//startingBlockNumber = 51333*blocksPerRound	// Frozen testing
+
+
+// These constants drive the environment to monitor
 const redistributionContract = "0xF4963031E8b9f9659CB6ed35E53c031D76480EAD".toLowerCase()
 const stakeRegistryContract = "0x18391158435582D5bE5ac1640ab5E2825F68d3a4".toLowerCase()
 const gBZZTokenContract = "0x2aC3c1d3e24b45c6C310534Bc2Dd84B5ed576335".toLowerCase()
@@ -13,13 +22,46 @@ const gBZZTokenABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"na
 
 const blocksPerRound = 152
 
-const preloadRounds = 4		// Startup can take a LONG time if you make this large!
+var preloadRounds = 0		// Startup can take a LONG time if you make this large!
+var startingBlockNumber = 0	// Unless overridden by arguement below
 
-const myOverlays = ["0xdf6c1b18cc21d07e0b89b05d16153002037f76982709ff879f2e6d60de7d2127",
-					"0xe1dc994c4a8ba82c183cd9b773210d7c88061c507fb9a9dfcbccea04b8380134",
-					"0x7cd1aa0441c0624b9e7d10c0c06c6de184c1bbe69c8c6c151bede80c4ecea8b2",
-					"0x86d7a00d43cbb9810b85031cb655ce073ab99acf78956520e0b287c847424249",
-					"0x47d48ff50fcfe118ecadb97d6cefe17397a0eeb554e4112b7a24d14ded8451bc"]
+if (process.argv.length < 3) {
+	console.error(`Usage: ${process.argv[0]} ${process.argv[1]} rpcURL(websocket) <HighlightOverlays...> <options>`)
+	console.error('Valid options are:')
+	console.error('    --preloadRounds N          Number of rounds to load before current round')
+	console.error('    --startBlock N             Block number to start loading')
+	console.error('    --startRound N             Round number to start loading; each round is ${blocksPerRound} blocks')
+	console.error('')
+	console.error(`for example: ${process.argv[0]} ${process.argv[1]} ws://localhost:8545 6a7c4d45064a382fdd6913fcfdf631b9cacd163c02f9207dee219ef63e953e43 0xB7563E747205FA41E3C59ADCEC667AA5D7415A8E1F4A61B35232486FF49F7C7B 828bec0209b77c751b8e41cd1e4004e902db05a8a7323f53ddf3d1d3dbb7f412 --preloadRounds 4`)
+	process.exit(-1)
+}
+
+const rpcURL = process.argv[2]
+var highlightOverlays = []
+
+for (var i=3; i<process.argv.length; i++)
+{
+	if (process.argv[i] == '--preloadRounds')
+		preloadRounds = Number(process.argv[++i])	// Startup can take a LONG time if you make this large!
+	else if (process.argv[i] == '--startBlock')
+		startingBlockNumber = Number(process.argv[++i])
+	else if (process.argv[i] == '--startRound')
+		startingBlockNumber = Number(process.argv[++i])*blocksPerRound
+	else if (process.argv[i].slice(0,1) == '-') {
+		console.error('Invalid option ${process.argv[i]}')
+		process.exit(-1)
+	}
+	else
+	{
+		var overlay = process.argv[i].toLowerCase()
+		if (overlay.slice(0,2) != '0x') overlay = '0x'+overlay
+		if (overlay.length != '0x47d48ff50fcfe118ecadb97d6cefe17397a0eeb554e4112b7a24d14ded8451bc'.length) {
+			console.error('Invalid overlay ${overlay}')
+			process.exit(-1)
+		}
+		if (!highlightOverlays.includes(overlay)) highlightOverlays[highlightOverlays.length] = overlay
+	}
+}
 
 
 //import blessed from 'blessed';
@@ -411,7 +453,7 @@ function addBoxes()
 
 function setWinnersLineTime(index,when,text)	// Caller is expected to trigger the render
 {
-	var line = specificLocalTime(when)+' '+text
+	var line = (isUndefined(when)?'        ':specificLocalTime(when)) + ' ' + text
 	winnersBox.setLine(index, line);
 }
 
@@ -560,9 +602,6 @@ function formatAccount(account,n)
 }
 
 
-var highlightOverlays = []
-myOverlays.forEach(add => highlightOverlays.push(add.toLowerCase()))
-
 function formatOverlay(overlay,n)
 {
 	var result = leftID(overlay,n)
@@ -621,14 +660,17 @@ function getWinner(blockTime, overlay, account)
 	
 	for (var i=0; i<Winners.length; i++)
 	{
-		if (Winners[i].overlay == overlay
-		&& Winners[i].account == account) {
-			Winners[i].when = blockTime
-			Winners[i].frozen = undefined
-			return Winners[i]
+		if (Winners[i].overlay == overlay) {
+			if (isUndefined(Winners[i].account)) {
+				Winners[i].account = account
+			}
+			if (Winners[i].account == account) {
+				Winners[i].when = blockTime
+				Winners[i].frozen = undefined
+				return Winners[i]
+			}
 		}
 	}
-
 	const winner = {when: blockTime, overlay: overlay, account: account, amount: 0, highlight: highlightOverlays.includes(overlay.toLowerCase())}
 	Winners[Winners.length] = winner
 
@@ -1267,19 +1309,11 @@ abiDecoder.addABI(StakeRegistryABI)
 abiDecoder.addABI(gBZZTokenABI)
 
 	var currentBlockNumber = await web3.eth.getBlockNumber()
-	var startingBlockNumber = currentBlockNumber	// Default to just start in the present moment
-	startingBlockNumber -= blocksPerRound * preloadRounds	// But back off a few rounds if specified
-	//startingBlockNumber = 7745129	// Redistribution contract deployment block
-	startingBlockNumber = 7753068	// First Commit transaction on Redistribution contract
-	//startingBlockNumber = 51029*blocksPerRound		// First round to credit the winner
-	//startingBlockNumber = 51232*blocksPerRound		// First round to have a slash
-	//startingBlockNumber = Math.min(7786054, 7787724, 7786660, 7787122) // My nodes' first rounds
-
-	//startingBlockNumber = 51323*blocksPerRound	// Recent slash followed by freeze
-	//startingBlockNumber = 51333*blocksPerRound	// Frozen testing
-	
+	if (startingBlockNumber == 0) {
+		startingBlockNumber = currentBlockNumber	// Default to just start in the present moment
+		startingBlockNumber -= blocksPerRound * preloadRounds	// But back off a few rounds if specified
+	}
 	startingBlockNumber = Math.floor(startingBlockNumber/blocksPerRound)*blocksPerRound		// Start at the first block of the round
-
 	do
 	{
 		currentBlockNumber = await web3.eth.getBlockNumber()
@@ -1451,8 +1485,6 @@ function chainName(id)
 	}
 }
 
-addBoxes()
-
 async function showNetwork()
 {
 	const chainID = await web3.eth.getChainId()
@@ -1463,51 +1495,17 @@ async function showNetwork()
 	winnersBox.insertLine(1,`{center}${chainName(chainID)}{/center}\n{center}${provider}{/center}`)
 	screen.render()
 }
-showNetwork()
 
-screen.render()
+async function start()
+{
+	await addBoxes()
 
-subscribeAll()
+	await showNetwork()
 
-async function test() {
-//const monitorAddresses = JSON.parse(process.env.MONITOR_ADDRESSES);
-  var block = await web3.eth.getBlock(7799277)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799316)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799353)
-  await updateBlockHeader(block)
+	await highlightOverlays.forEach(overlay => updateWinner(undefined, overlay, undefined, undefined))	// Prime the highlighted overlays
 
-  var block = await web3.eth.getBlock(7799425)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799428)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799429)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799465)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799468)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799495)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799505)
-  await updateBlockHeader(block)
-  
-  var block = await web3.eth.getBlock(7799581)
-  await updateBlockHeader(block)
+	await screen.render()
 
-  var block = await web3.eth.getBlock(7799660)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799730)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799731)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799771)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799772)
-  await updateBlockHeader(block)
-  var block = await web3.eth.getBlock(7799810)
-  await updateBlockHeader(block)
-
+	await subscribeAll()
 }
-//test()
+start()
