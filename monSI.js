@@ -39,6 +39,9 @@ if (process.argv.length < 3) {
 const rpcURL = process.argv[2]
 var highlightOverlays = []
 
+const allColors = ["black","red","green","yellow","blue","magenta","cyan","white"]
+const hColor = 'yellow'	// The highlight color
+
 for (var i=3; i<process.argv.length; i++)
 {
 	if (process.argv[i] == '--preloadRounds')
@@ -423,6 +426,11 @@ function addBoxes()
 
 	screen.append(blocksBox);
 
+let colors = 'Colors:'
+let brights = 'Brights:'
+allColors.forEach(c => {if (c=='black') colors = colors+` {white-bg}{${c}-fg}${c}{/${c}-fg}{/white-bg}`; else colors = colors+` {${c}-fg}${c}{/${c}-fg}`})
+allColors.forEach(c => {if (c=='black') brights = brights+` {white-bg}{bright-${c}-fg}${c}{/bright-${c}-fg}{/white-bg}`; else brights = brights+` {bright-${c}-fg}${c}{/bright-${c}-fg}`})
+
 	outputBox = blessed.box({
 	  //top: Math.trunc((boxCount+numWidth-1)/numWidth)*(numLines+1)+1,
 	  //left: 0,
@@ -432,7 +440,7 @@ function addBoxes()
 	  left: 0,
 	  width: blocksBox?'55%':'75%',
 	  height: '100%',
-	  content: '{left}error and trace\noutput will appear here\nand scroll down{/left}',
+	  content: `{left}error and trace\noutput will appear here\nand scroll down\n${colors}\n${brights}{/left}`,
 	  scrollable: true,
 	  tags: true,
 	  style: {
@@ -596,7 +604,7 @@ function formatAccount(account,n)
 	var result = leftID(account,n)
 	var overlay = getAccountOverlay(account)
 	if (overlay && highlightOverlays.includes(overlay.toLowerCase())) {
-		result = '{yellow-fg}'+result+'{/yellow-fg}'
+		result = `{${hColor}-fg}${result}{/${hColor}-fg}`
 	}
 	return result
 }
@@ -604,15 +612,17 @@ function formatAccount(account,n)
 
 function formatOverlay(overlay,n)
 {
+	if (overlay.slice(0,2) != '0x') overlay = '0x'+overlay
 	var result = leftID(overlay,n)
 	if (highlightOverlays.includes(overlay.toLowerCase())) {
-		result = '{yellow-fg}'+result+'{/yellow-fg}'
+		result = `{${hColor}-fg}${result}{/${hColor}-fg}`
 	}
 	return result
 }
 
 function formatAccountPlusOverlay(account,n)
 {
+	if (account.slice(0,2) != '0x') account = '0x'+account
 	const overlay = getAccountOverlay(account)
 	if (overlay) return formatAccount(account,n/2) + "("+formatOverlay(overlay,n)+")"
 	else return formatAccount(account,n)
@@ -644,12 +654,12 @@ function formatWinner(winner)
 {
 	var result = formatOverlay(winner.overlay,12)
 	if (!isUndefined(winner.winCount) && !isUndefined(winner.playCount)) result = result + ` ${winner.winCount}/${winner.playCount}`
-	if (winner.freezeCount && winner.freezeCount > 0) result = result + ` {blue-fg}${winner.freezeCount}{/blue-fg}`
+	if (winner.freezeCount && winner.freezeCount > 0) result = result + ` {cyan-fg}${winner.freezeCount}{/cyan-fg}`
 	if (winner.slashCount && winner.slashCount > 0) result = result + ` {red-fg}${winner.slashCount}{/red-fg}`
 	if (winner.amount != 0) result = result + " " + colorValue(winner.amount, false, shortBZZ)+colorDelta(winner.overlay+':amount', winner.amount, true, shortBZZ)
 	if (winner.frozen) {
-		if (winner.freezeTarget) result = result + ` {blue-fg}~${winner.freezeTarget}{/blue-fg}`
-		else result = result + " {blue-fg}FROZEN{/blue-fg}"
+		if (winner.freezeTarget) result = result + ` {cyan-fg}~${winner.freezeTarget}{/cyan-fg}`
+		else result = result + " {cyan-fg}FROZEN{/cyan-fg}"
 	}
 	return result
 }
@@ -754,10 +764,10 @@ function formatRound(round)
 		else term = `{red-fg}${term}{/red-fg}`
 		if (round.hashes[i].highlight
 		&& (round.hashes.length > 1 || round.hashes[i].count > 1))
-			term = `{yellow-bg}${term}{/yellow-bg}`
+			term = `{${hColor}-bg}${term}{/${hColor}-bg}`
 		result = result + term
 	}
-	if (round.freezes > 0) result = result + `={blue-fg}${round.freezes}{/blue-fg}`
+	if (round.freezes > 0) result = result + `={cyan-fg}${round.freezes}{/cyan-fg}`
 	if (round.winner) {
 		result = result + ` ${formatOverlay(round.winner,12)}`
 		if (round.depth) result = result + ` ^${round.depth}`
@@ -826,7 +836,7 @@ var PlayersReveals = 0
 function clearPlayers()
 {
 	for (var i=0; i<Players.length; i++)
-		playersBox.setLine(i,'')
+		playersBox.setLine(i+1,'')
 	Players = []
 	PlayersCommits = 0
 	PlayersReveals = 0
@@ -839,10 +849,10 @@ async function updatePlayer(p)
 	if (player.depth) text = text + ` ^${player.depth}`
 	if (player.hash) text = text + ` ${shortID(player.hash,10)}`
 	const line = specificLocalTime(player.when)+' '+text
-	playersBox.setLine(p, line);
+	playersBox.setLine(p+1, line);
 }
 
-async function addPlayer(blockTime, blockNumber, overlay, account, phase, depth, hash)
+async function flushPreviousRound(blockTime, blockNumber)
 {
 	const round = roundFromBlock(blockNumber)
 	if (round != PlayersRound) {
@@ -855,7 +865,40 @@ async function addPlayer(blockTime, blockNumber, overlay, account, phase, depth,
 		clearPlayers()
 	}
 	PlayersRound = round
+}
+
+async function updatePlayerRound(blockTime, blockNumber)
+{
+	flushPreviousRound(blockTime, blockNumber)
+
+	const offset = blockNumber % blocksPerRound
+	var phase
+	var length
+	var elapsed
+	if (offset < blocksPerRound / 4) {
+		phase = 'commit'
+		length = blocksPerRound / 4
+		elapsed = offset
+	} else if (offset <= blocksPerRound / 2) {
+		phase = 'reveal'
+		length = blocksPerRound / 4 + 1
+		elapsed = offset - blocksPerRound / 4 + 1
+	} else {
+		phase = 'claim'
+		length = blocksPerRound / 2 - 1
+		elapsed = offset - blocksPerRound / 2
+	}
+	const remaining = length - elapsed
+	const percent = Math.floor(elapsed*100/length)
 	
+	let line = `${specificLocalTime(blockTime)} ${roundString(blockNumber)} ${percent}% of ${phase}, ${remaining} blocks left`
+	if (blocksPerRound-offset-1 != remaining) line = line + `, ${blocksPerRound-offset-1} in round`
+	playersBox.setLine(0, line)
+}
+
+async function addPlayer(blockTime, blockNumber, overlay, account, phase, depth, hash)
+{
+	flushPreviousRound(blockTime, blockNumber)
 	//showError(`${roundString(blockNumber)} Player ${leftID(overlay,16)} ${phase} ${depth} ${shortID(hash,16)}`, overlay)
 	
 	if (phase == 'commit') PlayersCommits++
@@ -1068,7 +1111,7 @@ async function updateBlockTransactions(blockNumber, blockTime)
 		const input = abiDecoder.decodeMethod(transaction.input)
 		if (!input || !input.name) {
 			if (Number(transaction.value) == 0)
-				showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccountPlusOverlay(transaction.from,12)} CANCEL transaction (0gETH)`, undefined, blockTime)
+				showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccountPlusOverlay(transaction.from,12)} {red-fg}CANCEL{/red-fg} transaction (0gETH)`, undefined, blockTime)
 			else showLogError(`${roundString(blockNumber)} Block: ${blockNumber} ${formatAccountPlusOverlay(transaction.from,12)} -> ${formatAccountPlusOverlay(transaction.to,12)} ${shortETH(Number(transaction.value))}`, undefined, blockTime)
 		} else {
 			if (transaction.to.toLowerCase() == stakeRegistryContract.toLowerCase()
@@ -1291,6 +1334,7 @@ async function updateBlockHeader(blockHeader)
 	}
 	if (blocksBox) blocksBox.insertLine(1,`${specificLocalTime(blockTime)} ${blockHeader.number}${deltaBlockTime}${gas}`)
 	lastBlockTime = blockHeader.timestamp
+	updatePlayerRound(blockTime, blockHeader.number)
 	showError(text, "block");
 	const start = Date.now()
 	await updateBlockTransactions(blockHeader.number, blockTime)
@@ -1362,7 +1406,7 @@ web3.eth.subscribe('logs', options2, function(error, result){
   && decodedLogs[0].events[1].name == "time"
   && decodedLogs[0].events[0].type == "bytes32"
   && decodedLogs[0].events[1].type == "uint256") {
-		showLogError(`${formatOverlay(decodedLogs[0].events[0].value,12)} {blue-fg}FROZEN{/blue-fg} for ${decodedLogs[0].events[1].value} blocks`)
+		showLogError(`${formatOverlay(decodedLogs[0].events[0].value,12)} {cyan-fg}FROZEN{/cyan-fg} for ${decodedLogs[0].events[1].value} blocks`)
   }
   else if (decodedLogs
   && decodedLogs.length == 1
