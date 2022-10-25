@@ -878,7 +878,7 @@ async function updatePlayerRound(blockTime, blockNumber)
 	if (offset < blocksPerRound / 4) {
 		phase = 'commit'
 		length = blocksPerRound / 4
-		elapsed = offset
+		elapsed = offset + 1
 	} else if (offset <= blocksPerRound / 2) {
 		phase = 'reveal'
 		length = blocksPerRound / 4 + 1
