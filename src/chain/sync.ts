@@ -4,11 +4,12 @@ import {
 	TransactionResponse,
 } from '@ethersproject/abstract-provider'
 import { BigNumber, providers } from 'ethers'
+import invariant from 'tiny-invariant'
 import semaphore from 'semaphore'
 
-import config, { getRpcUrl } from '../config'
+import config from '../config'
 import { Logging } from '../utils'
-import gasmonitor, { gasPriceToString, gasUtilization } from './gas'
+import { Gas } from './gas'
 
 import {
 	BzzToken,
@@ -21,17 +22,20 @@ import {
 import {
 	Reveal,
 	SchellingGame,
+	Round,
 	StakeFreeze,
 	StakeSlash,
-} from '../types/entities/schelling'
-import { shortBZZ } from '../lib/formatUnits'
-import { fmtAccount } from '../lib/formatText'
-import { Round } from '../types/entities/round'
-import Ui, { BOXES } from '../types/entities/ui'
+	Ui,
+	BOXES,
+} from '../types/entities'
+
+import { shortBZZ, fmtAccount, specificLocalTime } from '../lib'
+import { formatBlockDeltaColor } from '../lib/formatChain'
 
 const game = SchellingGame.getInstance()
 
 enum State {
+	COLD,
 	INIT,
 	WARMUP,
 	RUNNING,
@@ -49,25 +53,53 @@ const MAX_CONCURRENT = 500
  * A service to monitor blockchain events, subsequently updating the game state.
  */
 
-export default class ChainSync {
+export class ChainSync {
 	private static instance: ChainSync
 
-	private provider: providers.WebSocketProvider
+	// ram these variables to avoid undefined error checking (initialized in init)
+	private provider!: providers.WebSocketProvider
+	private stakeRegistry!: StakeRegistry
+	private redistribution!: Redistribution
+	private bzzToken!: BzzToken
 
-	private stakeRegistry: StakeRegistry
-	private redistribution: Redistribution
-	private bzzToken: BzzToken
-
-	private _state: State = State.INIT
+	private _state: State = State.COLD
 	private lastBlock: BlockDetails = { blockNo: 7753000, blockTimestamp: 0 }
 	private tip: number = 0
 	private tipTimestamp: number = 0
 
+	private baseGasMonitor: Gas
+	private gasPriceMonitor: Gas
+
+	private _network?: providers.Network
+
 	private numFailedTransactions = 0
 
 	private constructor() {
-		// configure the RPC
-		this.provider = new providers.WebSocketProvider(getRpcUrl())
+		this.baseGasMonitor = new Gas(32)
+		this.gasPriceMonitor = new Gas(32)
+	}
+
+	// --- singleton method
+
+	public static getInstance(): ChainSync {
+		if (!ChainSync.instance) {
+			ChainSync.instance = new ChainSync()
+		}
+		return ChainSync.instance
+	}
+
+	public async getCurrentBlock(): Promise<number> {
+		return await this.provider.getBlockNumber()
+	}
+
+	public async init(rpc: string) {
+		// check the state
+		invariant(this._state === State.COLD, 'ChainSync must be cold')
+
+		this.provider = new providers.WebSocketProvider(rpc)
+
+		// cache the network information
+		this._network = await this.provider.getNetwork()
 
 		// connect to the contracts
 		this.stakeRegistry = StakeRegistry__factory.connect(
@@ -82,18 +114,14 @@ export default class ChainSync {
 			config.contracts.bzzToken,
 			this.provider
 		)
+
+		// mark as initialized
+		this._state = State.INIT
 	}
 
-	// --- singleton method
+	public async start(startFromBlock: number) {
+		invariant(this._state === State.INIT, 'ChainSync must be initialized')
 
-	public static getInstance(): ChainSync {
-		if (!ChainSync.instance) {
-			ChainSync.instance = new ChainSync()
-		}
-		return ChainSync.instance
-	}
-
-	public async start() {
 		Logging.showLogError(`Starting ChainSync...`)
 
 		// change the state to warmup
@@ -103,14 +131,19 @@ export default class ChainSync {
 		this.setupEventListeners()
 
 		// sync the blockchain - effectively backfilling the game state
-		await this.syncBlockchain()
+		await this.syncBlockchain(startFromBlock)
 
 		// change the state to running
 		this._state = State.RUNNING
 	}
 
-	private async syncBlockchain() {
-		Logging.showLogError(`Syncing blockchain...`)
+	private async syncBlockchain(startFromBlock: number) {
+		startFromBlock =
+			Math.floor(startFromBlock / config.game.blocksPerRound) *
+			config.game.blocksPerRound
+
+		Logging.showLogError(`Loading StakeUpdated logs from block 7716036`) // TODO: This should come from chain-config
+		const start = Date.now()
 		// 1. Process all `StakeUpdated` events as this determines who is in the game.
 		const stakeUpdatedFilter = this.stakeRegistry.filters.StakeUpdated()
 		const stakeUpdatedLogs = await this.provider.getLogs({
@@ -120,6 +153,10 @@ export default class ChainSync {
 
 		// now process the logs and add players to the game
 		await this.processStakeUpdatedLogs(stakeUpdatedLogs)
+		const elapsed = Date.now() - start
+		Logging.showLogError(
+			`Loaded ${stakeUpdatedLogs.length} StakeUpdated logs in ${elapsed}ms`
+		)
 
 		// 2. Process all `commit`, `reveal`, and `claim` transactions to the Redistribution contract.
 
@@ -127,13 +164,23 @@ export default class ChainSync {
 		// const sem = semaphore(MAX_CONCURRENT)
 
 		this.tip = await this.provider.getBlockNumber()
-		Logging.showLogError(`Processing blocks ${this.lastBlock} to ${this.tip}`)
+		this.lastBlock.blockNo = startFromBlock - 1 // increments below before getting block
 
 		// data structures / reporting are designed so that we can process blocks in any order
+		Logging.showLogError(
+			`Syncing blockchain from block ${this.lastBlock.blockNo + 1} to ${
+				this.tip
+			}`
+		)
+		const start2 = Date.now()
 		do {
+			//Logging.showLogError(`Sync block ${this.lastBlock.blockNo+1}`)
 			const block = await this.provider.getBlockWithTransactions(
 				this.lastBlock.blockNo + 1
 			)
+
+			if (block.number % 100 == 0)
+				Logging.showError(`Sync: Processing block ${block.number}`, 'sync')
 
 			await this.blockHandler(block)
 
@@ -142,7 +189,11 @@ export default class ChainSync {
 				blockTimestamp: block.timestamp * 1000,
 				baseFeePerGas: block.baseFeePerGas,
 			}
-		} while (this.lastBlock.blockNo <= this.tip)
+		} while (this.lastBlock.blockNo < this.tip)
+		const elapsed2 = Date.now() - start2
+		Logging.showLogError(
+			`Sync: Complete from block ${startFromBlock} to ${this.lastBlock.blockNo} in ${elapsed2}ms`
+		)
 
 		// for (let i = this.lastBlock; i <= nowBlockNumber; i++) {
 		//     // sem.take(async () => {
@@ -210,30 +261,47 @@ export default class ChainSync {
 		// setup listener for new blocks
 		this.provider.on('block', async (blockNumber: number) => {
 			const block = await this.provider.getBlockWithTransactions(blockNumber)
-			gasmonitor(block.baseFeePerGas ?? BigNumber.from(1))
+
+			this.gasPriceMonitor.newSample(await this.provider.getGasPrice())
+
+			const priceText = `{left}${specificLocalTime(
+				block.timestamp * 1000
+			)} ${blockNumber} ${
+				this.gasPriceMonitor.lastPrice
+			} ${this.gasPriceMonitor.percentColor()}%{/left}`
+			const offsetLine = game.size + 1 // Keep room for the getRpcUrl
+			Ui.getInstance().lineSetterCallback(BOXES.ALL_PLAYERS)(
+				offsetLine,
+				`{center}${config.name} getGasPrice{/center}`,
+				-1
+			)
+			Ui.getInstance().lineSetterCallback(BOXES.ALL_PLAYERS)(
+				offsetLine + 1,
+				`{center}${this.gasPriceMonitor.history}{/center}`,
+				-1
+			)
+			Ui.getInstance().lineInserterCallback(BOXES.ALL_PLAYERS)(
+				offsetLine + 2,
+				priceText,
+				-1
+			)
 
 			const dt = new Date(block.timestamp * 1000).toISOString()
-			const gas = `${gasUtilization(block)}% ${gasPriceToString(
+			const gas = `${Gas.gasUtilization(block)}% ${Gas.gasPriceToString(
 				block.baseFeePerGas || BigNumber.from(0)
 			)}`
 			let text = `${Round.roundFromBlock(block.number)} Block: ${
 				block.number
 			} Gas: ${gas} Time: ${dt}`
-			const deltaBlockTime =
-				this.tipTimestamp == 0
-					? ''
-					: `${block.timestamp - this.tipTimestamp / 1000}s`
-
-			Ui.getInstance().lineInserterCallback(BOXES.BLOCKS)(
-				0,
-				`${block.number} ${gas}${deltaBlockTime}`,
-				block.timestamp * 1000
-			)
 
 			Logging.showError(text, 'block')
 
 			const start = Date.now()
 			if (this._state == State.RUNNING) {
+				if (block.number != this.lastBlock.blockNo + 1)
+					Logging.showError(
+						`Skipped from block ${this.lastBlock.blockNo} to ${block.number}`
+					)
 				await this.blockHandler(block)
 
 				this.lastBlock = {
@@ -245,13 +313,6 @@ export default class ChainSync {
 			const elapsed = Date.now() - start
 
 			text += ` ${elapsed}ms`
-
-			Ui.getInstance().lineSetterCallback(BOXES.BLOCKS)(
-				0,
-				`${block.number} ${gas} ${deltaBlockTime} ${elapsed}ms`,
-				block.timestamp * 1000
-			)
-
 			Logging.showError(text, 'block')
 
 			this.tip = blockNumber
@@ -264,8 +325,38 @@ export default class ChainSync {
 	}
 
 	private async blockHandler(block: BlockWithTransactions) {
-		if (block.number % 100 == 0)
-			Logging.showLogError(`Sync: Processing block ${block.number}`)
+		this.baseGasMonitor.newSample(block.baseFeePerGas ?? BigNumber.from(1))
+		const deltaBlockTime =
+			this.lastBlock.blockTimestamp == 0
+				? ''
+				: `${formatBlockDeltaColor(
+						block.timestamp - this.lastBlock.blockTimestamp / 1000
+				  )}s`
+
+		Ui.getInstance().lineSetterCallback(BOXES.BLOCKS)(
+			0,
+			`{center}${this.baseGasMonitor.history}{/center}`,
+			-1 // Don't timestamp this line
+		)
+		Ui.getInstance().lineInserterCallback(BOXES.BLOCKS)(
+			1,
+			`${block.number} ${deltaBlockTime} ${
+				this.baseGasMonitor.lastPrice
+			} ${this.baseGasMonitor.percentColor()}%`,
+			block.timestamp * 1000
+		)
+
+		const blockDetails: BlockDetails = {
+			blockNo: block.number,
+			blockTimestamp: block.timestamp * 1000, // always set to milliseconds
+		}
+		const line = game.newBlock(blockDetails)
+		Ui.getInstance().lineSetterCallback(BOXES.ROUND_PLAYERS)(
+			0,
+			line,
+			block.timestamp * 1000
+		)
+
 		block.transactions.forEach(async (tx) => {
 			if (tx.to === config.contracts.redistribution) {
 				await this.processRedistributionTx(tx, block.timestamp)
@@ -298,11 +389,11 @@ export default class ChainSync {
 		switch (desc.name) {
 			case 'commit': // commit
 				const [, overlayAddress] = desc.args
-				game.commit(overlayAddress, blockDetails)
+				game.commit(overlayAddress, receipt.from, blockDetails)
 				break
 			case 'reveal': // reveal
 				const [overlay, depth, hash] = desc.args
-				game.reveal(overlay, hash, depth, blockDetails)
+				game.reveal(overlay, receipt.from, hash, depth, blockDetails)
 				break
 			case 'claim': // claim
 				// check for a 'Winner' event
@@ -350,7 +441,14 @@ export default class ChainSync {
 				})
 
 				// make a claim on the game!
-				game.claim(winner!, amount, blockDetails, freezes, slashes)
+				game.claim(
+					winner!,
+					receipt.from,
+					amount,
+					blockDetails,
+					freezes,
+					slashes
+				)
 				break
 		}
 	}

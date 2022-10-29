@@ -1,6 +1,6 @@
 import blessed, { Widgets } from 'blessed'
-import { getRpcUrl } from '../../config'
-import { currentLocalTime, specificLocalTime } from '../../lib/formatDate'
+import { ChainSync } from '../../chain'
+import { currentLocalTime, specificLocalTime } from '../../lib'
 
 /**
  * A singleton class for managing the user interface
@@ -14,7 +14,7 @@ export enum BOXES {
 	OUTPUT = 4,
 }
 
-export default class Ui {
+export class Ui {
 	private static instance: Ui
 
 	private _screen: Widgets.Screen
@@ -59,7 +59,7 @@ export default class Ui {
 			width: '25%',
 			height: '100%',
 
-			content: '\n{center}' + getRpcUrl() + '{/center}',
+			content: '\n{center}' + ChainSync.getInstance().rpcUrl + '{/center}',
 			scrollable: true,
 			tags: true,
 		})
@@ -92,7 +92,7 @@ export default class Ui {
 			left: '55%',
 			width: '20%',
 			height: '100%',
-			content: 'hh:mm:ss bbbbbbb nns mmmms',
+			content: '',
 			scrollable: true,
 			tags: true,
 		})
@@ -103,8 +103,7 @@ export default class Ui {
 			left: 0,
 			width: '55%', // blocksBox ? '55%' : '75%',
 			height: '100%',
-			content:
-				'{left}error and trace\noutput will appear here\nand scroll down{/left}',
+			content: `{left}error and trace\noutput will appear here\nand scroll down{/left}`,
 			scrollable: true,
 			tags: true,
 		})
@@ -206,8 +205,24 @@ export default class Ui {
 		}
 	}
 
-	updatePlayer(line: number, text: string, when: number) {
-		this._boxes[BOXES.ALL_PLAYERS].setLine(line, Ui.genText(text, when))
+	insertTopCallback(box: BOXES): (text: string, when?: number) => void {
+		return (text: string, when?: number) => {
+			this._boxes[box].insertTop(Ui.genText(text, when))
+			// render the changes
+			this._screen.render()
+		}
+	}
+
+	updatePlayer(
+		line: number,
+		text: string,
+		when: number | undefined,
+		newone?: boolean
+	) {
+		if (when) text = Ui.genText(text, when)
+		else text = '         ' + text
+		if (newone) this._boxes[BOXES.ALL_PLAYERS].insertLine(line, text)
+		else this._boxes[BOXES.ALL_PLAYERS].setLine(line, text)
 	}
 
 	private static genText(text: string, when?: number): string {

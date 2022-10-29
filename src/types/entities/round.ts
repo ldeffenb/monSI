@@ -1,14 +1,14 @@
 import { BigNumber, BigNumberish } from 'ethers'
-import { BlockDetails } from '../../chain/sync'
+import { BlockDetails } from '../../chain'
 import config from '../../config'
-import { fmtOverlay } from '../../lib/formatText'
-import { formatSi } from '../../lib/formatUnits'
+import { fmtOverlay, formatSi } from '../../lib'
 import { SchellingGame } from './schelling'
-import Ui, { BOXES } from './ui'
+import { Ui, BOXES } from './ui'
 
 export type RoundHash = {
 	depth: number
 	count: number
+	highlight: boolean
 }
 
 export type Claim = {
@@ -28,7 +28,9 @@ export class Round {
 	public players: string[] = []
 	public hashes: { [hash: string]: RoundHash } = {}
 	public claim: Claim | undefined = undefined
+	public unclaimed = false
 	private line = 0
+	private rendered = false
 
 	public get id() {
 		return this._id
@@ -37,7 +39,7 @@ export class Round {
 	constructor(block: BlockDetails) {
 		this._id = Round.roundFromBlock(block.blockNo)
 		this.lastBlock = block
-
+		this.rendered = false
 		this.line = SchellingGame.getInstance().numRounds
 	}
 
@@ -63,12 +65,16 @@ export class Round {
 		// enumerate and output the hashes
 		let i = 0
 		for (const hash in this.hashes) {
+			const rh = this.hashes[hash]
 			r += i > 0 ? '+' : ' '
 			const color = this.claim && hash == this.claim.truth ? 'green' : 'red'
-			r +=
-				`{${color}-fg}${this.hashes[hash].count}` +
-				(!sameDepth ? `^${this.hashes[hash].depth}` : '') +
+			let term =
+				`{${color}-fg}${rh.count}` +
+				(!sameDepth ? `^${rh.depth}` : '') +
 				`{/${color}-fg}`
+			if (rh.highlight && (Object.keys(this.hashes).length > 1 || rh.count > 1))
+				term = `{yellow-bg}${term}{/yellow-bg}`
+			r += term
 			i++
 		}
 
@@ -80,6 +86,8 @@ export class Round {
 				' {green-fg}' +
 				formatSi(this.claim.amount, { showPlus: true }) +
 				'{/green-fg}'
+		} else if (this.unclaimed) {
+			r += ' {magenta-fg}UNCLAIMED{/magenta-fg}'
 		}
 		return r
 	}
@@ -87,8 +95,7 @@ export class Round {
 	formatRoundPlayers(): string {
 		let r = ''
 		for (const player of this.players) {
-			if (r.length > 0) r += '\n'
-
+			r += '\n' // Always start with a newline to have room for the current round at the top
 			const p = SchellingGame.getInstance().getPlayer(player)!
 			r += p.formatRound(this._id)
 		}
@@ -100,11 +107,17 @@ export class Round {
 	 */
 	render() {
 		const ui = Ui.getInstance()
-		const roundsCb = ui.lineSetterCallback(BOXES.ROUNDS)
 		const playersCb = ui.boxSetterCallback(BOXES.ROUND_PLAYERS)
 
 		// update the rounds box
-		roundsCb(this.line, this.format(), this.lastBlock.blockTimestamp)
+		if (this.rendered) {
+			const roundsCb = ui.lineSetterCallback(BOXES.ROUNDS)
+			roundsCb(0, this.format(), this.lastBlock.blockTimestamp)
+		} else {
+			this.rendered = true
+			const roundsCb = ui.insertTopCallback(BOXES.ROUNDS)
+			roundsCb(this.format(), this.lastBlock.blockTimestamp)
+		}
 
 		// set the round players box
 		ui.boxLabelSetterCallback(BOXES.ROUND_PLAYERS)(`Round ${this.id} players`)
@@ -116,19 +129,24 @@ export class Round {
 	}
 
 	public static roundFromBlock(block: number) {
-		return Math.floor(block / config.blocksPerRound)
+		return Math.floor(block / config.game.blocksPerRound)
 	}
 
 	public static roundString(block: number) {
-		return `${Round.roundFromBlock(block)}(${block % config.blocksPerRound})`
+		return `${Round.roundFromBlock(block)}(${
+			block % config.game.blocksPerRound
+		})`
 	}
 
 	public static roundPhaseFromBlock(block: number) {
-		const residual = block % config.blocksPerRound
+		const residual = block % config.game.blocksPerRound
 
-		if (residual < config.commitPhaseBlocks) {
+		if (residual < config.game.commitPhaseBlocks) {
 			return 'commit'
-		} else if (residual < config.commitPhaseBlocks + config.revealPhaseBlocks) {
+		} else if (
+			residual <
+			config.game.commitPhaseBlocks + config.game.revealPhaseBlocks
+		) {
 			return 'reveal'
 		} else {
 			return 'claim'

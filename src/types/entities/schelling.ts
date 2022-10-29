@@ -1,14 +1,14 @@
 import { BigNumber } from 'ethers'
 import BTree_ from 'sorted-btree'
-import { leftId, shortId } from '../../lib/formatText'
 const BTree = (BTree_ as any).default as typeof BTree_
 
 import config from '../../config'
 import { Logging } from '../../utils'
+import { leftId, shortId } from '../../lib'
+import { BlockDetails } from '../../chain'
 
 import { Player } from './player'
 import { Round } from './round'
-import { BlockDetails } from '../../chain/sync'
 
 export type StakeFreeze = {
 	overlay: string
@@ -37,9 +37,13 @@ export class SchellingGame {
 	// All players have a unique overlay address
 	private players: BTree_<string, Player>
 	private rounds: BTree_<number, Round>
+	private currentRoundNo = 0
+	private lastBlock: BlockDetails
 
 	private myOverlays: string[] = []
 	private myAccounts: string[] = []
+
+	private static _showLogs = false
 
 	/**
 	 * Make the constructor private so that it can't be called.
@@ -48,34 +52,108 @@ export class SchellingGame {
 	private constructor() {
 		this.players = new BTree()
 		this.rounds = new BTree()
+		this.currentRoundNo = 0 // We haven't started the game yet
+		this.lastBlock = { blockNo: 0, blockTimestamp: 0 }
+	}
+
+	private getOrCreatePlayer(
+		overlay: string,
+		account?: string,
+		block?: BlockDetails
+	): Player {
+		if (!this.players.has(overlay)) {
+			this.players.set(overlay, new Player(overlay, account, block, this.size))
+			let line = 0 // Reassign the lines to sort the new player into place
+			this.players.forEachPair((overlay, player) => {
+				player.setLine(line++)
+			})
+		}
+		return this.players.get(overlay)!
+	}
+
+	public getOrCreateRound(roundNo: number, block: BlockDetails): Round {
+		// create the round if it doesn't exist
+		if (!this.rounds.has(roundNo)) {
+			this.rounds.set(roundNo, new Round(block))
+			this.players.forEachPair((overlay, player) => {
+				player.notPlaying()
+			})
+		}
+		const round = this.rounds.get(roundNo)
+		round!.lastBlock = block
+		return round!
+	}
+
+	public highlightOverlay(overlay: string) {
+		if (!this.myOverlays.includes(overlay)) {
+			this.myOverlays[this.myOverlays.length] = overlay
+			this.getOrCreatePlayer(overlay)
+		}
 	}
 
 	// --- game logic ---
 
+	public newBlock(block: BlockDetails): string {
+		const roundNo = SchellingGame.roundFromBlockNo(block.blockNo)
+		if (roundNo != this.currentRoundNo) {
+			if (this.currentRoundNo != 0) {
+				const round = this.rounds.get(this.currentRoundNo)
+				if (round && !round.claim) {
+					round.lastBlock = this.lastBlock
+					round.unclaimed = true
+					round.render()
+				}
+			}
+			this.currentRoundNo = roundNo
+		}
+		this.lastBlock = block
+		const blocksPerRound = config.game.blocksPerRound // TODO use configured blocksPerRound
+		const offset = block.blockNo % blocksPerRound
+		let phase
+		let length
+		let elapsed
+		if (offset < blocksPerRound / 4) {
+			phase = 'commit'
+			length = blocksPerRound / 4
+			elapsed = offset + 1
+		} else if (offset <= blocksPerRound / 2) {
+			phase = 'reveal'
+			length = blocksPerRound / 4 + 1
+			elapsed = offset - blocksPerRound / 4 + 1
+		} else {
+			phase = 'claim'
+			length = blocksPerRound / 2 - 1
+			elapsed = offset - blocksPerRound / 2
+		}
+		const remaining = length - elapsed
+		const percent = Math.floor((elapsed * 100) / length)
+
+		let line = `${Round.roundString(
+			block.blockNo
+		)} ${percent}% of ${phase}, ${remaining} blocks left`
+		if (config.game.blocksPerRound - offset - 1 != remaining)
+			line = line + `, ${config.game.blocksPerRound - offset - 1} in round`
+		return line
+	}
+
 	// --- commit
-	public commit(overlay: string, block: BlockDetails) {
+	public commit(overlay: string, owner: string, block: BlockDetails) {
 		const roundNo = SchellingGame.roundFromBlockNo(block.blockNo)
 
-		// create the round if it doesn't exist
-		if (!this.rounds.has(roundNo)) {
-			this.rounds.set(roundNo, new Round(block))
-		} else {
-			// update the round timestamp
-			this.rounds.get(roundNo)!.lastBlock = block
-		}
+		const round = this.getOrCreateRound(roundNo, block)
 
 		// update player state
-		const player = this.players.get(overlay)!
+		const player = this.getOrCreatePlayer(overlay, owner, block)!
 		player.commit(block)
 
 		// update the round state
-		const round = this.rounds.get(roundNo)!
 		round.commits++
 		round.players.push(overlay)
 
-		Logging.showError(
-			`${Round.roundString(block.blockNo)} Player ${leftId(overlay, 16)}`
-		)
+		if (SchellingGame._showLogs)
+			Logging.showError(
+				`${Round.roundString(block.blockNo)} Player ${leftId(overlay, 16)}`
+			)
 
 		round.render()
 	}
@@ -83,26 +161,20 @@ export class SchellingGame {
 	// --- reveal
 	public reveal(
 		overlay: string,
+		owner: string,
 		hash: string,
 		depth: number,
 		block: BlockDetails
 	) {
 		const roundNo = SchellingGame.roundFromBlockNo(block.blockNo)
 
-		// create the round if it doesn't exist
-		if (!this.rounds.has(roundNo)) {
-			this.rounds.set(roundNo, new Round(block))
-		} else {
-			// update the round timestamp
-			this.rounds.get(roundNo)!.lastBlock = block
-		}
+		const round = this.getOrCreateRound(roundNo, block)
 
 		// update the player
-		const player = this.players.get(overlay)!
+		const player = this.getOrCreatePlayer(overlay, owner, block)!
 		player.reveal(block, roundNo, hash, depth)
 
 		// update the round state
-		const round = this.rounds.get(roundNo)!
 		round.reveals++
 
 		if (round.hashes[hash]) {
@@ -114,22 +186,26 @@ export class SchellingGame {
 			}
 
 			round.hashes[hash].count++
+			if (this.isMyOverlay(overlay)) round.hashes[hash].highlight = true
 		} else {
 			round.hashes[hash] = {
 				count: 1,
 				depth,
+				highlight: this.isMyOverlay(overlay),
 			}
+			if (SchellingGame._showLogs)
+				Logging.showError(
+					`${Round.roundString(block.blockNo)} new hash ${shortId(hash, 16)}`
+				)
 		}
 
-		Logging.showError(
-			`${Round.roundString(block.blockNo)} new hash ${shortId(hash, 16)}`
-		)
-		Logging.showError(
-			`${Round.roundString(block.blockNo)} Player ${leftId(
-				overlay,
-				16
-			)} reveal ${depth} ${shortId(hash, 16)}`
-		)
+		if (SchellingGame._showLogs)
+			Logging.showError(
+				`${Round.roundString(block.blockNo)} Player ${leftId(
+					overlay,
+					16
+				)} reveal ${depth} ${shortId(hash, 16)}`
+			)
 
 		// render the round
 		round.render()
@@ -138,6 +214,7 @@ export class SchellingGame {
 	// --- claim
 	public claim(
 		winner: Reveal,
+		owner: string,
 		amount: BigNumber,
 		block: BlockDetails,
 		freezes: StakeFreeze[] = [],
@@ -145,8 +222,10 @@ export class SchellingGame {
 	) {
 		const roundNo = SchellingGame.roundFromBlockNo(block.blockNo)
 
+		const round = this.getOrCreateRound(roundNo, block)
+
 		// update player state
-		const winningPlayer = this.players.get(winner.overlay)!
+		const winningPlayer = this.getOrCreatePlayer(winner.overlay, owner, block)!
 		winningPlayer.claim(block, amount)
 
 		// freeze any players
@@ -166,7 +245,7 @@ export class SchellingGame {
 		})
 
 		// update the round state
-		const round = this.rounds.get(roundNo)!
+		round.lastBlock = block
 
 		round.claim = {
 			overlay: winner.overlay,
@@ -177,12 +256,13 @@ export class SchellingGame {
 		round.freezes = freezes.length
 		round.slashes = slashes.length
 
-		Logging.showError(
-			`${Round.roundString(block.blockNo)} Player ${leftId(
-				winner.overlay,
-				16
-			)} claim ${winner.depth} ${shortId(winner.hash, 16)}`
-		)
+		if (SchellingGame._showLogs)
+			Logging.showError(
+				`${Round.roundString(block.blockNo)} Player ${leftId(
+					winner.overlay,
+					16
+				)} claim ${winner.depth} ${shortId(winner.hash, 16)}`
+			)
 
 		// render the round
 		round.render()
@@ -197,13 +277,8 @@ export class SchellingGame {
 		amount: BigNumber,
 		block: BlockDetails
 	) {
-		// create the player if it doesn't exist
-		if (!this.players.has(overlay)) {
-			this.players.set(overlay, new Player(overlay, owner, block))
-		}
-
 		// update player state
-		const player = this.players.get(overlay)!
+		const player = this.getOrCreatePlayer(overlay, owner, block)
 		player.updateStake(block, amount)
 	}
 
@@ -282,6 +357,6 @@ export class SchellingGame {
 	 * @returns the round number
 	 */
 	public static roundFromBlockNo(blockNo: number): number {
-		return Math.floor(blockNo / config.blocksPerRound)
+		return Math.floor(blockNo / config.game.blocksPerRound)
 	}
 }

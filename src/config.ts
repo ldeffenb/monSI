@@ -2,13 +2,17 @@
  * Ethereum Swarm Schelling game configuration by chain
  */
 
-import dotenv from 'dotenv'
-dotenv.config()
+import { ChainSync } from './chain'
 
 export type ChainConfig = {
-	blocksPerRound: number
-	commitPhaseBlocks: number
-	revealPhaseBlocks: number
+	chain: {
+		secondsPerBlock: number
+	}
+	game: {
+		blocksPerRound: number
+		commitPhaseBlocks: number
+		revealPhaseBlocks: number
+	}
 	contracts: {
 		redistribution: string
 		stakeRegistry: string
@@ -21,11 +25,16 @@ export type Configs = {
 	[chainId: number]: ChainConfig
 }
 
-const chainConfig: Configs = {
+export const chainConfig: Configs = {
 	'5': {
-		blocksPerRound: 152,
-		commitPhaseBlocks: 152 / 4,
-		revealPhaseBlocks: 152 / 2,
+		chain: {
+			secondsPerBlock: 12,
+		},
+		game: {
+			blocksPerRound: 152,
+			commitPhaseBlocks: 152 / 4,
+			revealPhaseBlocks: 152 / 4 + 1,
+		},
 		contracts: {
 			redistribution: '0xF4963031E8b9f9659CB6ed35E53c031D76480EAD',
 			stakeRegistry: '0x18391158435582D5bE5ac1640ab5E2825F68d3a4',
@@ -33,9 +42,46 @@ const chainConfig: Configs = {
 			postageStamp: '0x7aAC0f092F7b961145900839Ed6d54b1980F200c',
 		},
 	},
+	'100': {
+		// TODO: Correct these values once gnosis is deployed
+		chain: {
+			secondsPerBlock: 5,
+		},
+		game: {
+			blocksPerRound: 152,
+			commitPhaseBlocks: 152 / 4,
+			revealPhaseBlocks: 152 / 4 + 1,
+		},
+		contracts: {
+			redistribution: '0xF4963031E8b9f9659CB6ed35E53c031D76480EAD', // wrong
+			stakeRegistry: '0x18391158435582D5bE5ac1640ab5E2825F68d3a4', // wrong
+			bzzToken: '0xdBF3Ea6F5beE45c02255B2c26a16F300502F68da', // correct
+			postageStamp: '0x6a1A21ECA3aB28BE85C7Ba22b2d6eAE5907c900E', // correct
+		},
+	},
 }
 
-export const getRpcUrl = () =>
-	process.env.RPC_URL || 'ws://goerli-geth.dappnode:8546'
+export default class Config {
+	static chainConfig: Configs = chainConfig
+	static chainSync: ChainSync = ChainSync.getInstance()
 
-export default chainConfig[Number(process.env.CHAIN_ID) || 5]
+	static chainId = 5
+
+	private constructor() {}
+
+	static setChainId(chainId: number) {
+		this.chainId = chainId
+	}
+
+	static get contracts(): ChainConfig['contracts'] {
+		return Config.chainConfig[Config.chainId].contracts
+	}
+
+	static get game(): ChainConfig['game'] {
+		return Config.chainConfig[Config.chainId].game
+	}
+
+	static get chain(): ChainConfig['chain'] {
+		return Config.chainConfig[Config.chainId].chain
+	}
+}
