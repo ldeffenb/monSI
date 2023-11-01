@@ -1,3 +1,6 @@
+# Obsoleted by https://github.com/rndlabs/monSI
+This repository is obsolete, nmaintained, and likely no longer works.   It is being retained strictly for historical (hysterical, if you compare the code bases) reasons.   Please use https://github.com/rndlabs/monSI
+
 # monSI
 A monitor for the upcoming Storage Incentives (SI) for the Ethersphere Bee swarm written in JavaScript for node.js
 
